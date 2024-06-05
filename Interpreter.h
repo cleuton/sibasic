@@ -11,7 +11,7 @@ class Interpreter {
 public:
     Interpreter();
     void execute(const std::shared_ptr<ProgramNode>& program);
-    void executeStatement(const std::shared_ptr<ASTNode>& statement);
+    int executeStatement(const std::shared_ptr<ASTNode>& statement, const std::shared_ptr<ProgramNode>& program);
     double evaluateExpression(const std::shared_ptr<ASTNode>& expression);
 
 private:

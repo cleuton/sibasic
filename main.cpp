@@ -8,6 +8,7 @@ void printTokens(const std::vector<Token>& tokens) {
     for (const auto& token : tokens) {
         std::string type;
         switch (token.type) {
+            case LINENO: type = "NUMERO DA LINHA"; break;
             case COMMAND: type = "COMMAND"; break;
             case IDENTIFIER: type = "IDENTIFIER"; break;
             case NUMBER: type = "NUMBER"; break;
@@ -28,16 +29,10 @@ void runTest(const std::string& input) {
     auto program = std::make_shared<ProgramNode>();
 
     while (std::getline(inputStream, line)) {
-        std::istringstream lineStream(line);
-        std::string basicLineNumber;
-        lineStream >> basicLineNumber;
-        std::string restOfLine;
-        std::getline(lineStream, restOfLine);
-        restOfLine = line.substr(basicLineNumber.length() + 1); // Retirando o número da linha e o espaço
+        Lexer lexer{};
         try {
-            Lexer lexer(restOfLine, basicLineNumber);
-            std::vector<Token> tokens = lexer.tokenize();
-            std::cout << "Line " << basicLineNumber << " tokens:" << std::endl;
+            std::vector<Token> tokens = lexer.tokenize(line);
+            std::cout << "Line " << tokens[0].value << " tokens:" << std::endl;
             printTokens(tokens);
 
             Parser parser(tokens);
@@ -46,7 +41,7 @@ void runTest(const std::string& input) {
                 program->statements.push_back(statement);
             }
 
-            std::cout << "AST for line " << basicLineNumber << ":" << std::endl;
+            std::cout << "AST for line " << tokens[0].value << ":" << std::endl;
             printAST(lineProgram);
 
         } catch (const LexerException& e) {
@@ -67,7 +62,7 @@ void runTest(const std::string& input) {
 
 int main() {
     std::vector<std::string> tests = {
-        "10 LET A = 5\n20 LET B=(SIN(A) + 3) ^2\n30 PRINT B\n"
+        "10 LET A = 5\n20 LET B=(SIN(A) + 3) ^2\n30 GOTO 50\n40 PRINT 999\n50 PRINT B\n"
     };
 
     for (const auto& test : tests) {

@@ -1,4 +1,5 @@
 #include "Lexer.h"
+#include <sstream>
 
 LexerException::LexerException(const std::string& message, const std::string& basicLineNumber, const std::string& instruction)
     : message("Line " + basicLineNumber + ": " + message + " - \"" + instruction + "\"") {}
@@ -7,17 +8,40 @@ const char* LexerException::what() const noexcept {
     return message.c_str();
 }
 
-Lexer::Lexer(const std::string& input, const std::string& basicLineNumber)
-    : input(input), pos(0), length(input.length()), basicLineNumber(basicLineNumber),
-      commands({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}}),
+Lexer::Lexer()
+    : commands({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}}),
       functions({{"EXP", true}, {"ABS", true}, {"LOG", true}, {"SIN", true}, {"COS", true}, {"TAN", true}, {"SQR", true}}),
       operators({{'+', true}, {'-', true}, {'*', true}, {'/', true}, {'^', true}, {'>', true}, {'<', true}, {'=', true}, {'!', true}}) {}
 
-std::vector<Token> Lexer::tokenize() {
+bool isNumeric(const std::string& str) {
+    for (char c : str) {
+        if (!std::isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::vector<Token> Lexer::tokenize(const std::string& input) {
     std::vector<Token> tokens;
+    this->pos = 0;
+    this->length = input.length();
+    this->input = input;
     while (pos < length) {
         if (isspace(input[pos])) {
             pos++;
+            continue;
+        }
+
+        if (pos == 0) {
+            std::istringstream lineStream(input);
+            std::string basicLineNumber;
+            lineStream >> basicLineNumber;
+            if (!isNumeric(basicLineNumber)) {
+                throw LexerException("Linha sem numero: " + std::string(1, input[pos]), basicLineNumber, input);
+            }
+            tokens.push_back({LINENO, basicLineNumber});
+            pos += basicLineNumber.length();
             continue;
         }
 
@@ -67,13 +91,13 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
         throw LexerException("Empty command", basicLineNumber, input);
     }
 
-    const std::string& command = tokens[0].value;
+    const std::string& command = tokens[1].value;
     if (command == "LET") {
-        if (tokens.size() < 4 || tokens[1].type != IDENTIFIER || tokens[2].type != OPERATOR || tokens[2].value != "=") {
-            if (!(tokens.size() >= 6 && tokens[1].type == IDENTIFIER && tokens[2].type == LPAREN && tokens[3].type == NUMBER && tokens[4].type == RPAREN && tokens[5].type == OPERATOR && tokens[5].value == "=")) {
+        if (tokens.size() < 4 || tokens[2].type != IDENTIFIER || tokens[3].type != OPERATOR || tokens[3].value != "=") {
+            if (!(tokens.size() >= 6 && tokens[2].type == IDENTIFIER && tokens[3].type == LPAREN && tokens[4].type == NUMBER && tokens[5].type == RPAREN && tokens[6].type == OPERATOR && tokens[6].value == "=")) {
                 throw LexerException("Invalid LET statement", basicLineNumber, input);
             }
-        } else if (tokens.size() == 4 && tokens[3].type == END_OF_LINE) {
+        } else if (tokens.size() == 5 && tokens[4].type == END_OF_LINE) {
             throw LexerException("Invalid LET statement, missing value", basicLineNumber, input);
         } else {
             for (size_t i = 3; i < tokens.size(); ++i) {
@@ -83,7 +107,7 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
             }
         }
     } else if (command == "DIM") {
-        if (tokens.size() != 4 || tokens[1].type != IDENTIFIER || tokens[2].type != NUMBER) {
+        if (tokens.size() != 5 || tokens[2].type != IDENTIFIER || tokens[3].type != NUMBER) {
             throw LexerException("Invalid DIM statement", basicLineNumber, input);
         }
     } else if (command == "PRINT") {
@@ -95,20 +119,20 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
         if (paren_count != 0) {
             throw LexerException("Mismatched parentheses in PRINT statement", basicLineNumber, input);
         }
-        if (tokens.size() < 2) {
+        if (tokens.size() < 3) {
             throw LexerException("Invalid PRINT statement", basicLineNumber, input);
         }
     } else if (command == "GOTO") {
-        if (tokens.size() != 3 || tokens[1].type != NUMBER) {
+        if (tokens.size() != 4 || tokens[2].type != NUMBER) {
             throw LexerException("Invalid GOTO statement", basicLineNumber, input);
         }
     } else if (command == "IF") {
-        if (tokens.size() < 6 || (tokens[1].type != IDENTIFIER && tokens[1].type != NUMBER) || tokens[2].type != OPERATOR ||
-            (tokens[3].type != IDENTIFIER && tokens[3].type != NUMBER) || tokens[4].value != "THEN" || tokens[5].type != NUMBER) {
+        if (tokens.size() < 7 || (tokens[2].type != IDENTIFIER && tokens[2].type != NUMBER) || tokens[3].type != OPERATOR ||
+            (tokens[4].type != IDENTIFIER && tokens[4].type != NUMBER) || tokens[5].value != "THEN" || tokens[6].type != NUMBER) {
             throw LexerException("Invalid IF statement", basicLineNumber, input);
         }
     } else if (command == "END") {
-        if (tokens.size() != 2) {
+        if (tokens.size() != 3) {
             throw LexerException("Invalid END statement", basicLineNumber, input);
         }
     }

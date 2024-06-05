@@ -35,21 +35,40 @@ double Interpreter::processFunction(const std::string& functionName, double argu
 }
 
 void Interpreter::execute(const std::shared_ptr<ProgramNode>& program) {
-    for (const auto& statement : program->statements) {
-        executeStatement(statement);
+    int index = 0;
+    while (index < program->statements.size()) { // Enquanto o índice for menor que o tamanho do vetor
+        const auto& statement = program->statements[index];
+        int newIndex = executeStatement(statement, program);
+        if (newIndex>=0) {
+            // Foi um GOTO ou um IF
+            index = newIndex;
+            continue;
+        }
+        ++index; // Incrementa o índice para avançar para o próximo elemento
     }
 }
 
-void Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement) {
+int Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement, const std::shared_ptr<ProgramNode>& program) {
     if (auto letStmt = std::dynamic_pointer_cast<LetStatementNode>(statement)) {
         double value = evaluateExpression(letStmt->expression);
         variables[letStmt->identifier] = value;
     } else if (auto printStmt = std::dynamic_pointer_cast<PrintStatementNode>(statement)) {
         double value = evaluateExpression(printStmt->expression);
         std::cout << value << std::endl;
+    } else if (auto gotoStmt = std::dynamic_pointer_cast<GotoStatementNode>(statement)) {
+        int index = 0;
+        while (index < program->statements.size()) {
+            const auto& statement = std::dynamic_pointer_cast<StatementNode>(program->statements[index]);
+            if (statement->numeroLinha == gotoStmt->numeroLinhaDesvio) {
+                return index;
+            }
+            ++index;
+        }
+        throw std::runtime_error("Numero de linha inexistente");
     } else {
         throw std::runtime_error("Unexpected statement type");
     }
+    return -1; // Continua a iterar no próximo comando
 }
 
 double Interpreter::evaluateExpression(const std::shared_ptr<ASTNode>& expression) {

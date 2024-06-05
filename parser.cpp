@@ -11,8 +11,15 @@ Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), pos(0) {}
 
 std::shared_ptr<ProgramNode> Parser::parse() {
     auto program = std::make_shared<ProgramNode>();
+    std::string numeroLinha = "";
     while (pos < tokens.size() && tokens[pos].type != END_OF_LINE) {
-        program->statements.push_back(parseStatement());
+        if (tokens[pos].type == LINENO) {
+            numeroLinha = tokens[pos++].value;
+            continue;
+        }
+        std::shared_ptr<StatementNode> nodePointer = parseStatement();
+        nodePointer->numeroLinha = numeroLinha;
+        program->statements.push_back(nodePointer);
     }
     return program;
 }
@@ -23,6 +30,8 @@ std::shared_ptr<StatementNode> Parser::parseStatement() {
         return parseLetStatement();
     } else if (match(COMMAND, "PRINT")) {
         return parsePrintStatement();
+    } else if (match(COMMAND, "GOTO")) {
+        return parseGotoStatement();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }
@@ -42,6 +51,13 @@ std::shared_ptr<PrintStatementNode> Parser::parsePrintStatement() {
     auto printStmt = std::make_shared<PrintStatementNode>();
     printStmt->expression = parseExpression();
     return printStmt;
+}
+
+std::shared_ptr<GotoStatementNode> Parser::parseGotoStatement() {
+    consume(COMMAND, "GOTO");
+    auto gotoStmt = std::make_shared<GotoStatementNode>();
+    gotoStmt->numeroLinhaDesvio = consume(NUMBER).value;
+    return gotoStmt;
 }
 
 std::shared_ptr<ExpressionNode> Parser::parseExpression() {
@@ -114,6 +130,7 @@ Token Parser::consume(TokenType type, const std::string& value) {
 
 std::string Parser::tokenTypeName(TokenType type) {
     switch (type) {
+        case LINENO: return "LINENO";
         case COMMAND: return "COMMAND";
         case IDENTIFIER: return "IDENTIFIER";
         case NUMBER: return "NUMBER";
@@ -135,11 +152,20 @@ void printAST(const std::shared_ptr<ASTNode>& node, int indent) {
             printAST(stmt, indent + 2);
         }
     } else if (auto letStmt = std::dynamic_pointer_cast<LetStatementNode>(node)) {
-        std::cout << indentStr << "LetStatementNode: " << letStmt->identifier << std::endl;
+        std::cout << indentStr << "LetStatementNode: "
+        << letStmt->numeroLinha << " >> "
+        << letStmt->identifier << std::endl;
         printAST(letStmt->expression, indent + 2);
     } else if (auto printStmt = std::dynamic_pointer_cast<PrintStatementNode>(node)) {
-        std::cout << indentStr << "PrintStatementNode" << std::endl;
+        std::cout << indentStr << "PrintStatementNode: "
+        << printStmt->numeroLinha << " >> "
+        << std::endl;
         printAST(printStmt->expression, indent + 2);
+    } else if (auto gotoStmt = std::dynamic_pointer_cast<GotoStatementNode>(node)) {
+        std::cout << indentStr << "GotoStatementNode: "
+        << gotoStmt->numeroLinha << " >> "
+        << gotoStmt->numeroLinhaDesvio
+        << std::endl;
     } else if (auto binaryExpr = std::dynamic_pointer_cast<BinaryExpressionNode>(node)) {
         std::cout << indentStr << "BinaryExpressionNode: " << binaryExpr->op << std::endl;
         printAST(binaryExpr->left, indent + 2);

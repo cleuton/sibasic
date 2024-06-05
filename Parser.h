@@ -21,6 +21,7 @@ public:
 
 class StatementNode : public ASTNode {
 public:
+    std::string numeroLinha;
     virtual ~StatementNode() = default;
 };
 
@@ -33,6 +34,11 @@ public:
 class PrintStatementNode : public StatementNode {
 public:
     ASTNodePtr expression;
+};
+
+class GotoStatementNode : public StatementNode {
+public:
+    std::string numeroLinhaDesvio;
 };
 
 class ExpressionNode : public ASTNode {
@@ -92,6 +98,7 @@ private:
     std::shared_ptr<StatementNode> parseStatement();
     std::shared_ptr<LetStatementNode> parseLetStatement();
     std::shared_ptr<PrintStatementNode> parsePrintStatement();
+    std::shared_ptr<GotoStatementNode> parseGotoStatement();
     std::shared_ptr<ExpressionNode> parseExpression();
     std::shared_ptr<ExpressionNode> parsePrimary();
 

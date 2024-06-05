@@ -20,12 +20,12 @@ private:
 
 class Lexer {
 public:
-    Lexer(const std::string& input, const std::string& basicLineNumber);
+    Lexer();
 
-    std::vector<Token> tokenize();
+    std::vector<Token> tokenize(const std::string& input);
 
 private:
-    const std::string input;
+    std::string input;
     size_t pos;
     size_t length;
     std::string basicLineNumber;

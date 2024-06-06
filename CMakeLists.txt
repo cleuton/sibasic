@@ -10,4 +10,6 @@ add_executable(sibasic main.cpp
         Parser.h
         parser.cpp
         Interpreter.h
-        interpreter.cpp)
+        interpreter.cpp
+        util.h
+        util.cpp)

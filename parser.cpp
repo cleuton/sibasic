@@ -32,6 +32,8 @@ std::shared_ptr<StatementNode> Parser::parseStatement() {
         return parsePrintStatement();
     } else if (match(COMMAND, "GOTO")) {
         return parseGotoStatement();
+    } else if (match(COMMAND, "DIM")) {
+        return parseDimStatement();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }
@@ -40,10 +42,33 @@ std::shared_ptr<StatementNode> Parser::parseStatement() {
 std::shared_ptr<LetStatementNode> Parser::parseLetStatement() {
     consume(COMMAND, "LET");
     auto letStmt = std::make_shared<LetStatementNode>();
-    letStmt->identifier = consume(IDENTIFIER).value;
+    letStmt->identifier = consume(IDENTIFIER).value().value;
+    auto token = consume(LCHAVE, "", false);
+    if (token) {
+        // É uma variável indexada. Pode ter um INDENTIFIER ou um NUMBER e um RCHAVE
+        auto resultado = consume(NUMBER, "",false);
+        if (!resultado.has_value()) {
+            // é uma variável indexando.
+            auto resultado2 = consume(IDENTIFIER);
+            if (resultado2.has_value()) {
+                letStmt->posicao = resultado2.value().value;
+            }
+        } else {
+            letStmt->posicao = resultado.value().value;
+        }
+        consume(RCHAVE);
+    }
     consume(OPERATOR, "=");
     letStmt->expression = parseExpression();
     return letStmt;
+}
+
+std::shared_ptr<DimStatementNode> Parser::parseDimStatement() {
+    consume(COMMAND, "DIM");
+    auto dimStmt = std::make_shared<DimStatementNode>();
+    dimStmt->nomeVariavel = consume(IDENTIFIER).value().value;
+    dimStmt->numeroOcorrencias = std::stoi(consume(NUMBER).value().value);
+    return dimStmt;
 }
 
 std::shared_ptr<PrintStatementNode> Parser::parsePrintStatement() {
@@ -56,14 +81,14 @@ std::shared_ptr<PrintStatementNode> Parser::parsePrintStatement() {
 std::shared_ptr<GotoStatementNode> Parser::parseGotoStatement() {
     consume(COMMAND, "GOTO");
     auto gotoStmt = std::make_shared<GotoStatementNode>();
-    gotoStmt->numeroLinhaDesvio = consume(NUMBER).value;
+    gotoStmt->numeroLinhaDesvio = consume(NUMBER).value().value;
     return gotoStmt;
 }
 
 std::shared_ptr<ExpressionNode> Parser::parseExpression() {
     auto left = parsePrimary();
     while (match(OPERATOR)) {
-        auto op = consume(OPERATOR).value;
+        auto op = consume(OPERATOR).value().value;
         auto right = parsePrimary();
         auto binaryExpr = std::make_shared<BinaryExpressionNode>();
         binaryExpr->op = op;
@@ -75,11 +100,24 @@ std::shared_ptr<ExpressionNode> Parser::parseExpression() {
 }
 
 std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
+    std::shared_ptr<IdentifierNode> identifierNode;
     if (match(NUMBER)) {
-        return std::make_shared<NumberNode>(consume(NUMBER).value);
+        return std::make_shared<NumberNode>(consume(NUMBER).value().value);
     } else if (match(IDENTIFIER)) {
-        auto identifierToken = consume(IDENTIFIER).value;
-        if (match(LPAREN)) {
+        auto identifierToken = consume(IDENTIFIER).value().value;
+        identifierNode = std::make_shared<IdentifierNode>(identifierToken);
+        if (match(LCHAVE)) {
+            // é um indexador
+            consume(LCHAVE,"[");
+            identifierNode = std::make_shared<IdentifierNode>(identifierToken);
+            auto resultado = consume(NUMBER,"",false);
+            if (!resultado) {
+                // é uma variável indexadora
+                resultado = consume(IDENTIFIER);
+            }
+            identifierNode->posicao = resultado.value().value;
+            consume(RCHAVE,"]");
+        } else if (match(LPAREN)) {
             auto functionCall = std::make_shared<FunctionCallNode>(identifierToken);
             consume(LPAREN);
             if (!match(RPAREN)) {
@@ -92,9 +130,9 @@ std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
             consume(RPAREN);
             return functionCall;
         }
-        return std::make_shared<IdentifierNode>(identifierToken);
+        return identifierNode;
     } else if (match(FUNCTION)) {
-        auto functionToken = consume(FUNCTION).value;
+        auto functionToken = consume(FUNCTION).value().value;
         auto functionCall = std::make_shared<FunctionCallNode>(functionToken);
         consume(LPAREN);
         functionCall->arguments.push_back(parseExpression());
@@ -121,11 +159,14 @@ bool Parser::match(TokenType type, const std::string& value) {
     return false;
 }
 
-Token Parser::consume(TokenType type, const std::string& value) {
+std::optional<Token> Parser::consume(TokenType type, const std::string& value, bool deveExistir) {
     if (match(type, value)) {
         return tokens[pos++];
     }
-    throw ParserException("Expected token " + tokenTypeName(type) + " but found " + tokens[pos].value);
+    if (deveExistir) {
+        throw ParserException("Expected token " + tokenTypeName(type) + " but found " + tokens[pos].value);
+    }
+    return std::nullopt;
 }
 
 std::string Parser::tokenTypeName(TokenType type) {
@@ -165,6 +206,11 @@ void printAST(const std::shared_ptr<ASTNode>& node, int indent) {
         std::cout << indentStr << "GotoStatementNode: "
         << gotoStmt->numeroLinha << " >> "
         << gotoStmt->numeroLinhaDesvio
+        << std::endl;
+    } else if (auto dimStmt = std::dynamic_pointer_cast<DimStatementNode>(node)) {
+        std::cout << indentStr << "DimStatementNode: "
+        << dimStmt->nomeVariavel << " >> "
+        << dimStmt->numeroOcorrencias
         << std::endl;
     } else if (auto binaryExpr = std::dynamic_pointer_cast<BinaryExpressionNode>(node)) {
         std::cout << indentStr << "BinaryExpressionNode: " << binaryExpr->op << std::endl;

@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <optional>
 
 class ASTNode {
 public:
@@ -28,6 +29,7 @@ public:
 class LetStatementNode : public StatementNode {
 public:
     std::string identifier;
+    std::string posicao;
     ASTNodePtr expression;
 };
 
@@ -39,6 +41,12 @@ public:
 class GotoStatementNode : public StatementNode {
 public:
     std::string numeroLinhaDesvio;
+};
+
+class DimStatementNode : public StatementNode {
+public:
+    std::string nomeVariavel;
+    int numeroOcorrencias = 0;
 };
 
 class ExpressionNode : public ASTNode {
@@ -72,6 +80,7 @@ public:
 class IdentifierNode : public ExpressionNode {
 public:
     std::string name;
+    std::string posicao;
     explicit IdentifierNode(const std::string& name) : name(name) {}
 };
 
@@ -99,11 +108,12 @@ private:
     std::shared_ptr<LetStatementNode> parseLetStatement();
     std::shared_ptr<PrintStatementNode> parsePrintStatement();
     std::shared_ptr<GotoStatementNode> parseGotoStatement();
+    std::shared_ptr<DimStatementNode> parseDimStatement();
     std::shared_ptr<ExpressionNode> parseExpression();
     std::shared_ptr<ExpressionNode> parsePrimary();
 
     bool match(TokenType type, const std::string& value = "");
-    Token consume(TokenType type, const std::string& value = "");
+    std::optional<Token> consume(TokenType type, const std::string& value = "", bool deveExistir = true);
 
     std::string tokenTypeName(TokenType type);
 };

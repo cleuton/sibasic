@@ -17,8 +17,10 @@ public:
 private:
     // Função para converter graus em radianos
     double degreesToRadians(double degrees);
-    std::unordered_map<std::string, double> variables;
+    std::unordered_map<std::string, std::vector<double>> variables;
+    std::unordered_map<std::string, int> vetores;
     // Função para processar chamadas de função
     double processFunction(const std::string& functionName, double argument);
+    int getPosicao(const std::string& varivavel, const std::string& indexador);
 };
 #endif //SIBASIC_INTERPRETER_H

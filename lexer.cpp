@@ -1,5 +1,6 @@
 #include "Lexer.h"
 #include <sstream>
+#include "util.h"
 
 LexerException::LexerException(const std::string& message, const std::string& basicLineNumber, const std::string& instruction)
     : message("Line " + basicLineNumber + ": " + message + " - \"" + instruction + "\"") {}
@@ -13,14 +14,7 @@ Lexer::Lexer()
       functions({{"EXP", true}, {"ABS", true}, {"LOG", true}, {"SIN", true}, {"COS", true}, {"TAN", true}, {"SQR", true}}),
       operators({{'+', true}, {'-', true}, {'*', true}, {'/', true}, {'^', true}, {'>', true}, {'<', true}, {'=', true}, {'!', true}}) {}
 
-bool isNumeric(const std::string& str) {
-    for (char c : str) {
-        if (!std::isdigit(c)) {
-            return false;
-        }
-    }
-    return true;
-}
+
 
 std::vector<Token> Lexer::tokenize(const std::string& input) {
     std::vector<Token> tokens;
@@ -62,6 +56,12 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
         } else if (input[pos] == ')') {
             tokens.push_back({RPAREN, ")"});
             pos++;
+        } else if (input[pos] == '[') {
+            tokens.push_back({LCHAVE, "["});
+            pos++;
+        } else if (input[pos] == ']') {
+            tokens.push_back({RCHAVE, "]"});
+            pos++;
         } else if (input[pos] == ',') {
             tokens.push_back({COMMA, ","});
             pos++;
@@ -93,18 +93,20 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
 
     const std::string& command = tokens[1].value;
     if (command == "LET") {
-        if (tokens.size() < 4 || tokens[2].type != IDENTIFIER || tokens[3].type != OPERATOR || tokens[3].value != "=") {
-            if (!(tokens.size() >= 6 && tokens[2].type == IDENTIFIER && tokens[3].type == LPAREN && tokens[4].type == NUMBER && tokens[5].type == RPAREN && tokens[6].type == OPERATOR && tokens[6].value == "=")) {
-                throw LexerException("Invalid LET statement", basicLineNumber, input);
+        bool temEsquerdo = false;
+        bool temOperador = false;
+        bool temDireito = false;
+        for (int x=2; x<tokens.size(); x++) {
+            if (tokens[x].type == IDENTIFIER) {
+                temEsquerdo = true;
+            } else if (tokens[x].type == OPERATOR) {
+                temOperador = true;
+            } else if ((tokens[x].type == IDENTIFIER || tokens[x].type == NUMBER) && temEsquerdo) {
+                temDireito = true;
             }
-        } else if (tokens.size() == 5 && tokens[4].type == END_OF_LINE) {
-            throw LexerException("Invalid LET statement, missing value", basicLineNumber, input);
-        } else {
-            for (size_t i = 3; i < tokens.size(); ++i) {
-                if (tokens[i].type == OPERATOR && i == tokens.size() - 2) {
-                    throw LexerException("Invalid LET statement, missing value after operator", basicLineNumber, input);
-                }
-            }
+        }
+        if ((!temEsquerdo) || (!temOperador) || (!temDireito)) {
+            throw LexerException("Invalid LET statement", basicLineNumber, input);
         }
     } else if (command == "DIM") {
         if (tokens.size() != 5 || tokens[2].type != IDENTIFIER || tokens[3].type != NUMBER) {

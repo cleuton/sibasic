@@ -112,8 +112,9 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
                 temEsquerdo = true;
             } else if (tokens[x].type == OPERATOR) {
                 temOperador = true;
-            } else if ((tokens[x].type == IDENTIFIER || tokens[x].type == NUMBER) && temEsquerdo) {
+            } else if ((tokens[x].type == IDENTIFIER || tokens[x].type == NUMBER || tokens[x].type == FUNCTION || tokens[x].type == OPERATOR) && temEsquerdo) {
                 temDireito = true;
+                break;
             }
         }
         if ((!temEsquerdo) || (!temOperador) || (!temDireito)) {

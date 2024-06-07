@@ -46,6 +46,9 @@ void Interpreter::execute(const std::shared_ptr<ProgramNode>& program) {
             // Foi um GOTO ou um IF
             index = newIndex;
             continue;
+        } else if (newIndex == -2) {
+            // Encontrou um comando END
+            break;
         }
         ++index; // Incrementa o índice para avançar para o próximo elemento
     }
@@ -93,6 +96,10 @@ int Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement, con
         }
         vetores[dimStmt->nomeVariavel] = dimStmt->numeroOcorrencias;
         variables[dimStmt->nomeVariavel] = std::vector<double>(dimStmt->numeroOcorrencias, 0.0);
+    } else if (auto endStmt = std::dynamic_pointer_cast<EndStatementNode>(statement)) {
+        std::cout << "Comando END" << std::endl;
+        return -2; // Terminar o programa
+
     } else {
         throw std::runtime_error("Unexpected statement type");
     }

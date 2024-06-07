@@ -34,6 +34,8 @@ std::shared_ptr<StatementNode> Parser::parseStatement() {
         return parseGotoStatement();
     } else if (match(COMMAND, "DIM")) {
         return parseDimStatement();
+    } else if (match(COMMAND, "END")) {
+        return parseEndStatement();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }
@@ -83,6 +85,12 @@ std::shared_ptr<GotoStatementNode> Parser::parseGotoStatement() {
     auto gotoStmt = std::make_shared<GotoStatementNode>();
     gotoStmt->numeroLinhaDesvio = consume(NUMBER).value().value;
     return gotoStmt;
+}
+
+std::shared_ptr<EndStatementNode> Parser::parseEndStatement() {
+    consume(COMMAND, "END");
+    auto endStmt = std::make_shared<EndStatementNode>();
+    return endStmt;
 }
 
 std::shared_ptr<ExpressionNode> Parser::parseExpression() {
@@ -212,9 +220,15 @@ void printAST(const std::shared_ptr<ASTNode>& node, int indent) {
         << dimStmt->nomeVariavel << " >> "
         << dimStmt->numeroOcorrencias
         << std::endl;
+    } else if (auto endStmt = std::dynamic_pointer_cast<EndStatementNode>(node)) {
+        std::cout << indentStr << "EndStatementNode: "
+        << std::endl;
     } else if (auto binaryExpr = std::dynamic_pointer_cast<BinaryExpressionNode>(node)) {
         std::cout << indentStr << "BinaryExpressionNode: " << binaryExpr->op << std::endl;
         printAST(binaryExpr->left, indent + 2);
+        printAST(binaryExpr->right, indent + 2);
+    } else if (auto unaryExpr = std::dynamic_pointer_cast<UnaryExpressionNode>(node)) {
+        std::cout << indentStr << "UnaryExpressionNode: " << unaryExpr->op << std::endl;
         printAST(binaryExpr->right, indent + 2);
     } else if (auto number = std::dynamic_pointer_cast<NumberNode>(node)) {
         std::cout << indentStr << "NumberNode: " << number->value << std::endl;

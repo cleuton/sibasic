@@ -49,6 +49,10 @@ public:
     int numeroOcorrencias = 0;
 };
 
+class EndStatementNode : public StatementNode {
+
+};
+
 class ExpressionNode : public ASTNode {
 public:
     virtual ~ExpressionNode() = default;
@@ -70,6 +74,13 @@ public:
     ASTNodePtr left;
     ASTNodePtr right;
 };
+
+class UnaryExpressionNode : public ExpressionNode {
+public:
+    std::string op;
+    ASTNodePtr right;
+};
+
 
 class NumberNode : public ExpressionNode {
 public:
@@ -109,6 +120,7 @@ private:
     std::shared_ptr<PrintStatementNode> parsePrintStatement();
     std::shared_ptr<GotoStatementNode> parseGotoStatement();
     std::shared_ptr<DimStatementNode> parseDimStatement();
+    std::shared_ptr<EndStatementNode> parseEndStatement();
     std::shared_ptr<ExpressionNode> parseExpression();
     std::shared_ptr<ExpressionNode> parsePrimary();
 

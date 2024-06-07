@@ -66,8 +66,19 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
             tokens.push_back({COMMA, ","});
             pos++;
         } else if (operators.count(input[pos])) {
-            tokens.push_back({OPERATOR, std::string(1, input[pos])});
-            pos++;
+            if (input[pos] == '-') {
+                // Vamos trocar por "-1 *"
+                tokens.push_back({LPAREN, "("});
+                tokens.push_back({NUMBER, "1"});
+                tokens.push_back({OPERATOR, "-"});
+                tokens.push_back({NUMBER, "2"});
+                tokens.push_back({RPAREN, ")"});
+                tokens.push_back({OPERATOR, "*"});
+                pos++;
+            } else {
+                tokens.push_back({OPERATOR, std::string(1, input[pos])});
+                pos++;
+            }
         } else {
             throw LexerException("Unexpected character: " + std::string(1, input[pos]), basicLineNumber, input);
         }

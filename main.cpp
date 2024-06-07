@@ -71,7 +71,13 @@ int main() {
     std::vector<std::string> tests = {
         /*"10 LET A = 5\n20 LET B=(SIN(A) + 3) ^2\n30 GOTO 50\n40 PRINT 999\n50 PRINT B\n"
         "10 DIM V 5\n20 LET X = 1\n30 LET V[X] = X + 50\n40 PRINT V[1]\n"*/
-        "1 DIM T 3\n5 LET T[3] = 5\n15 LET T[2] = (SIN(T[3]) + 3) ^2\n20 PRINT T[2]\n"
+        /*"1 DIM T 3\n5 LET T[3] = 5\n15 LET T[2] = (SIN(T[3]) + -3) ^2\n20 PRINT T[2]\n"*/
+        /*"1 LET A = 7\n5 LET B = -A + 5\n20 PRINT B\n",*/
+        /*"1 PRINT -3\n2 LET A = 30\n5 LET B = -5\n10 PRINT -(SIN(A) + B)\n"*/
+        /*"1 LET X = 4 + 3\n2 PRINT X\n"*/
+        /*"1 LET X = SIN(1)\n2 PRINT X\n"*/
+        /*"10 LET A = 5\n20 LET B=(SIN(A) + 3) ^2\n30 GOTO 50\n40 PRINT 999\n50 PRINT B\n60 END\n"*/
+        "1 LET A = 10\n11 PRINT A\n13 END\n20 GOTO 1"
     };
 
     for (const auto& test : tests) {

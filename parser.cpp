@@ -36,6 +36,8 @@ std::shared_ptr<StatementNode> Parser::parseStatement() {
         return parseDimStatement();
     } else if (match(COMMAND, "END")) {
         return parseEndStatement();
+    } else if (match(COMMAND, "IF")) {
+        return parseIfStatement();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }
@@ -91,6 +93,27 @@ std::shared_ptr<EndStatementNode> Parser::parseEndStatement() {
     consume(COMMAND, "END");
     auto endStmt = std::make_shared<EndStatementNode>();
     return endStmt;
+}
+
+std::shared_ptr<IfStatementNode> Parser::parseIfStatement() {
+    consume(COMMAND, "IF");
+    auto ifStmt = std::make_shared<IfStatementNode>();
+    ifStmt->operando1 = parsePrimary();
+    auto retorno = consume(OPERATOR, "=", false);
+    if (!retorno.has_value()) {
+        retorno = consume(OPERATOR, ">", false);
+        if (!retorno.has_value()) {
+            retorno = consume(OPERATOR, "<", false);
+            if (!retorno.has_value()) {
+                throw ParserException("IF sem operador lógico");
+            }
+        }
+    }
+    ifStmt->operadorLogico = retorno.value().value;
+    ifStmt->operando2 = parsePrimary();
+    consume(IDENTIFIER, "THEN");
+    ifStmt->numeroLinha = consume(NUMBER).value().value;
+    return ifStmt;
 }
 
 std::shared_ptr<ExpressionNode> Parser::parseExpression() {
@@ -223,12 +246,13 @@ void printAST(const std::shared_ptr<ASTNode>& node, int indent) {
     } else if (auto endStmt = std::dynamic_pointer_cast<EndStatementNode>(node)) {
         std::cout << indentStr << "EndStatementNode: "
         << std::endl;
+    } else if (auto ifStmt = std::dynamic_pointer_cast<IfStatementNode>(node)) {
+        std::cout << indentStr << "IfStatementNode: "
+        << ifStmt->operando1 << " " << ifStmt->operadorLogico
+        << " " << ifStmt->operando2 << " >> " << ifStmt->numeroLinha;
     } else if (auto binaryExpr = std::dynamic_pointer_cast<BinaryExpressionNode>(node)) {
         std::cout << indentStr << "BinaryExpressionNode: " << binaryExpr->op << std::endl;
         printAST(binaryExpr->left, indent + 2);
-        printAST(binaryExpr->right, indent + 2);
-    } else if (auto unaryExpr = std::dynamic_pointer_cast<UnaryExpressionNode>(node)) {
-        std::cout << indentStr << "UnaryExpressionNode: " << unaryExpr->op << std::endl;
         printAST(binaryExpr->right, indent + 2);
     } else if (auto number = std::dynamic_pointer_cast<NumberNode>(node)) {
         std::cout << indentStr << "NumberNode: " << number->value << std::endl;

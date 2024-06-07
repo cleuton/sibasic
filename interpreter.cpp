@@ -99,7 +99,36 @@ int Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement, con
     } else if (auto endStmt = std::dynamic_pointer_cast<EndStatementNode>(statement)) {
         std::cout << "Comando END" << std::endl;
         return -2; // Terminar o programa
-
+    } else if (auto ifStmt = std::dynamic_pointer_cast<IfStatementNode>(statement)) {
+        double operando1 = evaluateExpression(ifStmt->operando1);
+        double operando2 = evaluateExpression(ifStmt->operando2);
+        double resultado = operando1 - operando2;
+        bool trueFalse = false;
+        if (ifStmt->operadorLogico == "=") {
+            if (resultado == 0) {
+                trueFalse = true;
+            }
+        } else if (ifStmt->operadorLogico == ">") {
+            if (resultado > 0) {
+                trueFalse = true;
+            }
+        } else {
+            if (resultado < 0) {
+                trueFalse = true;
+            }
+        }
+        if (trueFalse) {
+            // vai desviar para a linha THEN
+            int index = 0;
+            while (index < program->statements.size()) {
+                const auto& statement = std::dynamic_pointer_cast<StatementNode>(program->statements[index]);
+                if (statement->numeroLinha == ifStmt->numeroLinha) {
+                    return index;
+                }
+                ++index;
+            }
+        }
+        return -1; // Condition was false
     } else {
         throw std::runtime_error("Unexpected statement type");
     }

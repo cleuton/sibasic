@@ -53,6 +53,14 @@ class EndStatementNode : public StatementNode {
 
 };
 
+class IfStatementNode : public StatementNode {
+public:
+    ASTNodePtr operando1;
+    std::string operadorLogico;
+    ASTNodePtr operando2;
+    std::string numeroLinha;
+};
+
 class ExpressionNode : public ASTNode {
 public:
     virtual ~ExpressionNode() = default;
@@ -75,11 +83,6 @@ public:
     ASTNodePtr right;
 };
 
-class UnaryExpressionNode : public ExpressionNode {
-public:
-    std::string op;
-    ASTNodePtr right;
-};
 
 
 class NumberNode : public ExpressionNode {
@@ -121,6 +124,7 @@ private:
     std::shared_ptr<GotoStatementNode> parseGotoStatement();
     std::shared_ptr<DimStatementNode> parseDimStatement();
     std::shared_ptr<EndStatementNode> parseEndStatement();
+    std::shared_ptr<IfStatementNode> parseIfStatement();
     std::shared_ptr<ExpressionNode> parseExpression();
     std::shared_ptr<ExpressionNode> parsePrimary();
 

@@ -77,7 +77,8 @@ int main() {
         /*"1 LET X = 4 + 3\n2 PRINT X\n"*/
         /*"1 LET X = SIN(1)\n2 PRINT X\n"*/
         /*"10 LET A = 5\n20 LET B=(SIN(A) + 3) ^2\n30 GOTO 50\n40 PRINT 999\n50 PRINT B\n60 END\n"*/
-        "1 LET A = 10\n11 PRINT A\n13 END\n20 GOTO 1"
+        /*"1 LET A = 10\n11 PRINT A\n13 END\n20 GOTO 1"*/
+        "10 LET A = 5\n20 LET B = 7\n30 IF A < B THEN 50\n40 END\n50 PRINT A\n"
     };
 
     for (const auto& test : tests) {

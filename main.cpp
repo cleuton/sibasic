@@ -3,6 +3,7 @@
 #include "Interpreter.h"
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 void printTokens(const std::vector<Token>& tokens) {
     for (const auto& token : tokens) {
@@ -25,7 +26,7 @@ void printTokens(const std::vector<Token>& tokens) {
     }
 }
 
-void runTest(const std::string& input) {
+void runProgram(const std::string& input, bool verbose) {
     std::istringstream inputStream(input);
     std::string line;
     auto program = std::make_shared<ProgramNode>();
@@ -34,8 +35,11 @@ void runTest(const std::string& input) {
         Lexer lexer{};
         try {
             std::vector<Token> tokens = lexer.tokenize(line);
-            std::cout << "Line " << tokens[0].value << " tokens:" << std::endl;
-            printTokens(tokens);
+
+            if (verbose) {
+                std::cout << "Line " << tokens[0].value << " tokens:" << std::endl;
+                printTokens(tokens);
+            }
 
             Parser parser(tokens);
             auto lineProgram = parser.parse();
@@ -43,8 +47,10 @@ void runTest(const std::string& input) {
                 program->statements.push_back(statement);
             }
 
-            std::cout << "AST for line " << tokens[0].value << ":" << std::endl;
-            printAST(lineProgram);
+            if (verbose) {
+                std::cout << "AST for line " << tokens[0].value << ":" << std::endl;
+                printAST(lineProgram);
+            }
 
         } catch (const LexerException& e) {
             std::cerr << "Error: " << e.what() << std::endl;
@@ -61,30 +67,40 @@ void runTest(const std::string& input) {
         std::cerr << "Interpreter Error: " << e.what() << std::endl;
     }
 }
-/*
-10 DIM V 5
-20 LET X = 1
-30 LET V[X] = X + 50
-40 PRINT V[1]
- */
-int main() {
-    std::vector<std::string> tests = {
-        /*"10 LET A = 5\n20 LET B=(SIN(A) + 3) ^2\n30 GOTO 50\n40 PRINT 999\n50 PRINT B\n"
-        "10 DIM V 5\n20 LET X = 1\n30 LET V[X] = X + 50\n40 PRINT V[1]\n"*/
-        /*"1 DIM T 3\n5 LET T[3] = 5\n15 LET T[2] = (SIN(T[3]) + -3) ^2\n20 PRINT T[2]\n"*/
-        /*"1 LET A = 7\n5 LET B = -A + 5\n20 PRINT B\n",*/
-        /*"1 PRINT -3\n2 LET A = 30\n5 LET B = -5\n10 PRINT -(SIN(A) + B)\n"*/
-        /*"1 LET X = 4 + 3\n2 PRINT X\n"*/
-        /*"1 LET X = SIN(1)\n2 PRINT X\n"*/
-        /*"10 LET A = 5\n20 LET B=(SIN(A) + 3) ^2\n30 GOTO 50\n40 PRINT 999\n50 PRINT B\n60 END\n"*/
-        /*"1 LET A = 10\n11 PRINT A\n13 END\n20 GOTO 1"*/
-        "10 LET A = 5\n20 LET B = 7\n30 IF A < B THEN 50\n40 END\n50 PRINT A\n"
-    };
 
-    for (const auto& test : tests) {
-        std::cout << "Testing input:\n" << test << std::endl;
-        runTest(test);
+int main(int argc, char *argv[]) {
+    if (argc != 2 && argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " [-v] <arquivo>" << std::endl;
+        return 1;
     }
+
+    bool verbose = false;
+    std::string filename;
+
+    if (argc == 3) {
+        std::string arg1 = argv[1];
+        if (arg1 == "-v") {
+            verbose = true;
+        } else {
+            std::cerr << "Invalid option: " << arg1 << std::endl;
+            return 1;
+        }
+        filename = argv[2];
+    } else {
+        filename = argv[1];
+    }
+
+    std::ifstream file(filename);
+    if (!file) {
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        return 1;
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string input = buffer.str();
+
+    runProgram(input, verbose);
 
     return 0;
 }

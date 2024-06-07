@@ -104,7 +104,7 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
 
     const std::string& command = tokens[1].value;
     if (command == "LET") {
-        bool temEsquerdo = false;
+        /*bool temEsquerdo = false;
         bool temOperador = false;
         bool temDireito = false;
         for (int x=2; x<tokens.size(); x++) {
@@ -119,7 +119,7 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
         }
         if ((!temEsquerdo) || (!temOperador) || (!temDireito)) {
             throw LexerException("Invalid LET statement", basicLineNumber, input);
-        }
+        }*/
     } else if (command == "DIM") {
         if (tokens.size() != 5 || tokens[2].type != IDENTIFIER || tokens[3].type != NUMBER) {
             throw LexerException("Invalid DIM statement", basicLineNumber, input);
@@ -141,10 +141,10 @@ void Lexer::validateCommand(const std::vector<Token>& tokens) {
             throw LexerException("Invalid GOTO statement", basicLineNumber, input);
         }
     } else if (command == "IF") {
-        if (tokens.size() < 7 || (tokens[2].type != IDENTIFIER && tokens[2].type != NUMBER) || tokens[3].type != OPERATOR ||
+        /*if (tokens.size() < 7 || (tokens[2].type != IDENTIFIER && tokens[2].type != NUMBER) || tokens[3].type != OPERATOR ||
             (tokens[4].type != IDENTIFIER && tokens[4].type != NUMBER) || tokens[5].value != "THEN" || tokens[6].type != NUMBER) {
             throw LexerException("Invalid IF statement", basicLineNumber, input);
-        }
+        }*/
     } else if (command == "END") {
         if (tokens.size() != 3) {
             throw LexerException("Invalid END statement", basicLineNumber, input);

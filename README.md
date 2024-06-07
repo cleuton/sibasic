@@ -131,3 +131,33 @@ Esta versão não permite utilizar o comando **DEF FN** para definir funções. 
 - **Valor absoluto**: ABS
 
 As funções trigonométricas assumem que os ângulos estão em graus (e não em radianos).
+
+## Exemplos legais
+
+Saber se um número é primo com o **crivo de Eratóstenes**: 
+```basic
+10 DIM A 100
+20 LET I = 2
+30 IF I > 100 THEN 60
+40 LET A[I] = 1
+50 LET I = I + 1
+55 GOTO 30
+60 LET I = 2
+70 IF I > 100 THEN 120
+80 IF A[I] = 0 THEN 110
+90 LET J = I * 2
+100 IF J > 100 THEN 110
+105 LET A[J] = 0
+107 LET J = J + I
+108 GOTO 100
+110 LET I = I + 1
+115 GOTO 70
+120 LET N = 31
+130 IF A[N] = 0 THEN 160
+140 PRINT 1
+150 GOTO 170
+160 PRINT 0
+170 END
+```
+
+A linha 120 define um número a ser validado. Se ele for primo, o programa mostrará "1", caso contrário, mostrará "0".

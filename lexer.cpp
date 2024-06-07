@@ -48,8 +48,8 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
             } else {
                 tokens.push_back({IDENTIFIER, word});
             }
-        } else if (isdigit(input[pos])) {
-            tokens.push_back({NUMBER, readWhile([](int c) { return std::isdigit(c); })});
+        } else if (isdigit(input[pos]) || input[pos] == '.') {
+            tokens.push_back({NUMBER, readWhile([](int c) { return std::isdigit(c) || c == '.'; })});
         } else if (input[pos] == '(') {
             tokens.push_back({LPAREN, "("});
             pos++;

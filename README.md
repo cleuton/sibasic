@@ -23,7 +23,7 @@ Todas as variáveis são numéricas reais de precisão dupla. Elas podem ser vet
 
 ## Comandos BASIC
 
-Cada linha deve conter um e somente um comando BASIC. Todas as linhas devem ser numeradas.
+Cada linha deve conter um e somente um comando BASIC. Todas as linhas devem ser numeradas. O **Executor** transforma todos os caracteres em maiúsculas antes de interpretar.
 
 Os seguintes comandos **BASIC** foram implementados: 
 

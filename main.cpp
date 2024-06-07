@@ -34,6 +34,7 @@ void runProgram(const std::string& input, bool verbose) {
     while (std::getline(inputStream, line)) {
         Lexer lexer{};
         try {
+            transform(line.begin(), line.end(), line.begin(), ::toupper);
             std::vector<Token> tokens = lexer.tokenize(line);
 
             if (verbose) {

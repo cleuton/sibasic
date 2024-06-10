@@ -21,6 +21,7 @@ void printTokens(const std::vector<Token>& tokens) {
             case RCHAVE: type = "RCHAVE"; break;
             case COMMA: type = "COMMA"; break;
             case END_OF_LINE: type = "END_OF_LINE"; break;
+            case LITERALSTRING: type = "LITERALSTRING"; break;
         }
         std::cout << type << ": " << token.value << std::endl;
     }
@@ -34,10 +35,15 @@ void runProgram(const std::string& input, bool verbose) {
     while (std::getline(inputStream, line)) {
         Lexer lexer{};
         try {
+            if (line[0] == '*') {
+                // É uma linha de comentário. Vamos pular
+                continue;
+            }
             transform(line.begin(), line.end(), line.begin(), ::toupper);
             std::vector<Token> tokens = lexer.tokenize(line);
 
             if (verbose) {
+                std::cout << "Fonte: " << line << std::endl;
                 std::cout << "Line " << tokens[0].value << " tokens:" << std::endl;
                 printTokens(tokens);
             }

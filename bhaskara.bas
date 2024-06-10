@@ -1,16 +1,22 @@
+* Coeficientes
 10 LET A = 1
 20 LET B = 12
 30 LET C = -13
+* Delta
 40 LET D = B ^ 2 - 4 * A * C
 42 LET E = B ^ 2
 50 IF D = 0 THEN 200
 60 IF D < 0 THEN 300
 70 LET X1 = (-B + SQR(D)) / 2 * A
 80 LET X2 = (-B - SQR(D)) / 2 * A
+82 PRINT "O DELTA É POSITIVO"
 90 PRINT X1
 100 PRINT X2
 110 END
+* Delta zero
 200 LET X1 = -B / 2 * A
+205 PRINT "O DELTA É ZERO"
 210 PRINT X1
 220 END
-300 PRINT D
+* Delta negativo
+300 PRINT "O DELTA É NEGATIVO"

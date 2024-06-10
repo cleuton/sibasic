@@ -17,6 +17,15 @@ analisador sintático para formar a estrutura gramatical do código. Em resumo, 
 - **Parser**: Arquivo parser.cpp. O parser (analisador sintático) é a segunda etapa de um interpretador. Ele recebe a sequência de tokens produzida pelo lexer e verifica se ela está de acordo com a gramática da linguagem de programação. O parser constrói uma representação hierárquica da estrutura do código, chamada de árvore de análise sintática (AST), que captura a relação entre os diferentes elementos do código, como expressões, declarações e comandos. Essa árvore é então utilizada pelo interpretador para realizar a execução do programa, interpretando cada nó da árvore e realizando as ações correspondentes de acordo com a semântica da linguagem. Em resumo, o parser traduz a sequência de tokens em uma estrutura de dados que o interpretador pode utilizar para entender e executar o código fonte.
 - **Interpreter**: Arquivo interpreter.cpp. Um Interpreter (intérprete) é a terceira e última etapa de um interpretador. Ele recebe a estrutura de dados produzida pelo parser, geralmente uma árvore de análise sintática (AST), e executa as instruções representadas por essa estrutura. O intérprete interpreta cada nó da árvore e executa as ações correspondentes de acordo com a semântica da linguagem de programação. Isso envolve avaliar expressões, executar comandos, controlar o fluxo do programa e interagir com o ambiente de execução. Em resumo, o intérprete é responsável por efetivamente executar o código fonte, transformando-o em resultados observáveis ou efeitos no sistema conforme definido pela linguagem.
 
+## Linhas válidas
+
+Toda linha de comando deve começar com um número de linha que não deve se repetir. Preferencialmente, devem vir em sequência, 
+mas o interpretador não reforça isso. 
+
+Uma linha começando pelo caractere "*" (no lugar do número de linha) é considerada comentário e descartada. Em **BASIC** 
+existe o comando **REM** para isso, porém ele exige número de linha e é tratado pelo LEXER e PARSER. Eu acho melhor simplesmente
+ignorar a linha. 
+
 ## Variáveis e vetores
 
 Todas as variáveis são numéricas reais de precisão dupla. Elas podem ser vetores (não matrizes), se as declararmos com o comando **DIM**.
@@ -31,7 +40,7 @@ Os seguintes comandos **BASIC** foram implementados:
 - **DIM**: Declara vetores.
 - **LET**: Atribui valores ou expressões às variáveis.
 - **GOTO**: Desvio incondicional para uma linha. 
-- **PRINT**: Exibe o resultado de uma expressão na console.
+- **PRINT**: Exibe o resultado de uma expressão na console. Pode imprimir literais.
 - **IF**: Desvio condicional para uma linha.
 - **END**: Termina o programa.
 
@@ -85,7 +94,12 @@ Exibe o resultado de uma **expressão** na console. Pode ser um número, uma var
 PRINT -3
 ```
 
-Não podem ser utilizados literais textuais e nem mais de um argumento. 
+Podemos imprimir literais: 
+```basic
+PRINT "ESTE É UM LITERAL"
+```
+
+Não aceita mais de um parâmetro. Só pode fazer PRINT de uma coisa de cada vez.  
 
 ### IF
 
@@ -152,12 +166,41 @@ Saber se um número é primo com o **crivo de Eratóstenes**:
 108 GOTO 100
 110 LET I = I + 1
 115 GOTO 70
-120 LET N = 31
+* Na próxima linha você define o número que quer verificar:
+120 LET N = 19
+122 PRINT "VERIFICANDO SE O NUMERO É PRIMO"
+123 PRINT N
 130 IF A[N] = 0 THEN 160
-140 PRINT 1
+140 PRINT "PRIMO"
 150 GOTO 170
-160 PRINT 0
+160 PRINT "NÃO É PRIMO"
 170 END
 ```
 
-A linha 120 define um número a ser validado. Se ele for primo, o programa mostrará "1", caso contrário, mostrará "0".
+A linha 120 define um número a ser validado. 
+
+Equação do segundo grau com a **fórmula de Bhaskara**: 
+```basic
+* Coeficientes
+10 LET A = 1
+20 LET B = 12
+30 LET C = -13
+* Delta
+40 LET D = B ^ 2 - 4 * A * C
+42 LET E = B ^ 2
+50 IF D = 0 THEN 200
+60 IF D < 0 THEN 300
+70 LET X1 = (-B + SQR(D)) / 2 * A
+80 LET X2 = (-B - SQR(D)) / 2 * A
+82 PRINT "O DELTA É POSITIVO"
+90 PRINT X1
+100 PRINT X2
+110 END
+* Delta zero
+200 LET X1 = -B / 2 * A
+205 PRINT "O DELTA É ZERO"
+210 PRINT X1
+220 END
+* Delta negativo
+300 PRINT "O DELTA É NEGATIVO"
+```

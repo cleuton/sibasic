@@ -41,7 +41,16 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
             continue;
         }
 
-        if (isalpha(input[pos])) {
+        if (input[pos] == '\"') {
+            // inicio de literal
+            trocarUnaryMinus = false;
+            pos++;
+            std::string literal = readWhile([](int c) { return c != '\"'; });
+            if (pos<input.length()) {
+                pos++;
+            }
+            tokens.push_back({LITERALSTRING, literal});
+        } else if (isalpha(input[pos])) {
             trocarUnaryMinus = false;
             std::string word = readWhile([](int c) { return std::isalnum(c); });
             if (commands.count(word)) {
@@ -73,6 +82,10 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
         } else if (input[pos] == ',') {
             trocarUnaryMinus = false;
             tokens.push_back({COMMA, ","});
+            pos++;
+        } else if (input[pos] == '"') {
+            trocarUnaryMinus = false;
+            tokens.push_back({DOUBLEQUOTE, "\""});
             pos++;
         } else if (operators.count(input[pos])) {
             if (trocarUnaryMinus && input[pos] == '-') {

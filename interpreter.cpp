@@ -76,8 +76,12 @@ int Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement, con
             variables[letStmt->identifier].at(posicao) = value;
         }
     } else if (auto printStmt = std::dynamic_pointer_cast<PrintStatementNode>(statement)) {
-        double value = evaluateExpression(printStmt->expression);
-        std::cout << value << std::endl;
+        if (printStmt->printLiteral) {
+            std::cout << printStmt->literal << std::endl;
+        } else {
+            double value = evaluateExpression(printStmt->expression);
+            std::cout << value << std::endl;
+        }
     } else if (auto gotoStmt = std::dynamic_pointer_cast<GotoStatementNode>(statement)) {
         int index = 0;
         while (index < program->statements.size()) {

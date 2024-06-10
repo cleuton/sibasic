@@ -35,7 +35,9 @@ public:
 
 class PrintStatementNode : public StatementNode {
 public:
+    bool printLiteral;
     ASTNodePtr expression;
+    std::string literal;
 };
 
 class GotoStatementNode : public StatementNode {

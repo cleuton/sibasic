@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include <iostream>
+#include <sstream>
 
 ParserException::ParserException(const std::string& message) : message(message) {}
 
@@ -78,6 +79,13 @@ std::shared_ptr<DimStatementNode> Parser::parseDimStatement() {
 std::shared_ptr<PrintStatementNode> Parser::parsePrintStatement() {
     consume(COMMAND, "PRINT");
     auto printStmt = std::make_shared<PrintStatementNode>();
+    if (match(LITERALSTRING, "")) {
+        // É um literal
+        printStmt->printLiteral = true;
+        printStmt->literal = tokens[pos].value;
+        consume(LITERALSTRING);
+        return printStmt;
+    }
     printStmt->expression = parseExpression();
     return printStmt;
 }
@@ -267,6 +275,7 @@ std::string Parser::tokenTypeName(TokenType type) {
         case RPAREN: return "RPAREN";
         case COMMA: return "COMMA";
         case END_OF_LINE: return "END_OF_LINE";
+        case DOUBLEQUOTE: return "DOUBLEQUOTE";
         default: return "UNKNOWN";
     }
 }
@@ -286,6 +295,7 @@ void printAST(const std::shared_ptr<ASTNode>& node, int indent) {
     } else if (auto printStmt = std::dynamic_pointer_cast<PrintStatementNode>(node)) {
         std::cout << indentStr << "PrintStatementNode: "
         << printStmt->numeroLinha << " >> "
+        << " literal: " << printStmt->printLiteral
         << std::endl;
         printAST(printStmt->expression, indent + 2);
     } else if (auto gotoStmt = std::dynamic_pointer_cast<GotoStatementNode>(node)) {

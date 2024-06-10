@@ -33,7 +33,79 @@ Se não estiver instalado, instale o cmake (versão >= 3.28):
 
 O executável **sibasic** estará na pasta **build**.
 
-Se quiser entender o **CMake** e o **CMakeLists.txt** vá para o título final deste arquivo. 
+Se quiser entender o **CMake** e o **CMakeLists.txt** vá para o título final deste arquivo.
+
+## Execução do SiBasic
+```shell
+sibasic <path do código basic>
+```
+
+Se quiser ver os tokens, que são a saída do **Lexer** e a **AST - Abstract Syntax Three**, que é a saída do **Parser**, 
+basta informar o flag **-v** (modo verboso).
+
+Exemplo: 
+```shell
+./sibasic ../basic_programs/trigonometricos.bas
+
+Fonte: 10 LET ANGULO = 0
+Linha 10 tokens:
+NUMERO_LINHA: 10
+COMANDO: LET
+IDENTIFICADOR: ANGULO
+OPERADOR: =
+NUMERO: 0
+FIM_DE_LINHA: 
+AST para a linha line 10:
+NoDePrograma
+  NoDoComandoLET: 10 >> ANGULO
+    NoDeNumero: 0
+
+Fonte: 20 PRINT "ANGULO:"
+Linha 20 tokens:
+NUMERO_LINHA: 20
+COMANDO: PRINT
+DESCONHECIDO: ANGULO:
+FIM_DE_LINHA: 
+AST para a linha line 20:
+NoDePrograma
+  NoDoComandoPrint: 20 >>  literal: 1
+
+Fonte: 30 PRINT ANGULO
+Linha 30 tokens:
+NUMERO_LINHA: 30
+COMANDO: PRINT
+IDENTIFICADOR: ANGULO
+FIM_DE_LINHA: 
+AST para a linha line 30:
+NoDePrograma
+  NoDoComandoPrint: 30 >>  literal: 0
+    NoDeIdentificador: ANGULO
+...
+
+ANGULO:
+0
+SENO:
+0
+COSSENO:
+1
+TANGENTE:
+0
+ANGULO:
+15
+SENO:
+0.258819
+COSSENO:
+0.965926
+TANGENTE:
+0.267949
+ANGULO:
+30
+SENO:
+...
+Comando END
+
+```
+
 
 ## Linhas válidas
 

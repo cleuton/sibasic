@@ -7,24 +7,24 @@
 
 void executarPrograma(const std::string& input, bool verbose) {
     std::istringstream inputStream(input);
-    std::string line;
+    std::string linha;
     auto programa = std::make_shared<NoDePrograma>();
 
-    while (std::getline(inputStream, line)) {
+    while (std::getline(inputStream, linha)) {
         Lexer lexer{};
         try {
-            if (line[0] == '*') {
+            if (linha[0] == '*') {
                 // É uma linha de comentário. Vamos pular
                 continue;
             }
-            transform(line.begin(), line.end(), line.begin(), ::toupper);
-            std::vector<Token> tokens = lexer.tokenize(line);
+            transform(linha.begin(), linha.end(), linha.begin(), ::toupper);
+            std::vector<Token> tokens = lexer.tokenize(linha);
 
             Parser parser(tokens);
 
             if (verbose) {
-                std::cout << "Fonte: " << line << std::endl;
-                std::cout << "Line " << tokens[0].value << " tokens:" << std::endl;
+                std::cout << "Fonte: " << linha << std::endl;
+                std::cout << "Linha " << tokens[0].value << " tokens:" << std::endl;
                 for (const auto& token : tokens) {
                     std::string type = parser.tokenTypeName(token.type);
                     std::cout << type << ": " << token.value << std::endl;

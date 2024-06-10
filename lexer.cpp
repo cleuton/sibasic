@@ -21,6 +21,7 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
     this->pos = 0;
     this->length = input.length();
     this->input = input;
+    bool trocarUnaryMinus = false;
     while (pos < length) {
         if (isspace(input[pos])) {
             pos++;
@@ -28,6 +29,7 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
         }
 
         if (pos == 0) {
+            trocarUnaryMinus = false;
             std::istringstream lineStream(input);
             std::string basicLineNumber;
             lineStream >> basicLineNumber;
@@ -40,6 +42,7 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
         }
 
         if (isalpha(input[pos])) {
+            trocarUnaryMinus = false;
             std::string word = readWhile([](int c) { return std::isalnum(c); });
             if (commands.count(word)) {
                 tokens.push_back({COMMAND, word});
@@ -49,24 +52,30 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
                 tokens.push_back({IDENTIFIER, word});
             }
         } else if (isdigit(input[pos]) || input[pos] == '.') {
+            trocarUnaryMinus = false;
             tokens.push_back({NUMBER, readWhile([](int c) { return std::isdigit(c) || c == '.'; })});
         } else if (input[pos] == '(') {
+            trocarUnaryMinus = true;
             tokens.push_back({LPAREN, "("});
             pos++;
         } else if (input[pos] == ')') {
+            trocarUnaryMinus = false;
             tokens.push_back({RPAREN, ")"});
             pos++;
         } else if (input[pos] == '[') {
+            trocarUnaryMinus = false;
             tokens.push_back({LCHAVE, "["});
             pos++;
         } else if (input[pos] == ']') {
+            trocarUnaryMinus = false;
             tokens.push_back({RCHAVE, "]"});
             pos++;
         } else if (input[pos] == ',') {
+            trocarUnaryMinus = false;
             tokens.push_back({COMMA, ","});
             pos++;
         } else if (operators.count(input[pos])) {
-            if (input[pos] == '-') {
+            if (trocarUnaryMinus && input[pos] == '-') {
                 // Vamos trocar por "-1 *"
                 tokens.push_back({LPAREN, "("});
                 tokens.push_back({NUMBER, "1"});
@@ -74,8 +83,10 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
                 tokens.push_back({NUMBER, "2"});
                 tokens.push_back({RPAREN, ")"});
                 tokens.push_back({OPERATOR, "*"});
+                trocarUnaryMinus = false;
                 pos++;
             } else {
+                trocarUnaryMinus = true;
                 tokens.push_back({OPERATOR, std::string(1, input[pos])});
                 pos++;
             }

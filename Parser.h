@@ -126,6 +126,9 @@ private:
     std::shared_ptr<EndStatementNode> parseEndStatement();
     std::shared_ptr<IfStatementNode> parseIfStatement();
     std::shared_ptr<ExpressionNode> parseExpression();
+    std::shared_ptr<ExpressionNode> parseAddSub();
+    std::shared_ptr<ExpressionNode> parseMulDiv();
+    std::shared_ptr<ExpressionNode> parseExponent();
     std::shared_ptr<ExpressionNode> parsePrimary();
 
     bool match(TokenType type, const std::string& value = "");

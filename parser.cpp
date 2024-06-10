@@ -116,6 +116,7 @@ std::shared_ptr<IfStatementNode> Parser::parseIfStatement() {
     return ifStmt;
 }
 
+/*
 std::shared_ptr<ExpressionNode> Parser::parseExpression() {
     auto left = parsePrimary();
     while (match(OPERATOR)) {
@@ -129,6 +130,60 @@ std::shared_ptr<ExpressionNode> Parser::parseExpression() {
     }
     return left;
 }
+*/
+
+std::shared_ptr<ExpressionNode> Parser::parseExpression() {
+    return parseAddSub();
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseAddSub() {
+    auto node = parseMulDiv();
+
+    while (match(OPERATOR, "+") || match(OPERATOR, "-")) {
+        auto op = consume(OPERATOR).value().value;
+        auto right = parseMulDiv();
+        auto binaryExpr = std::make_shared<BinaryExpressionNode>();
+        binaryExpr->op = op;
+        binaryExpr->left = node;
+        binaryExpr->right = right;
+        node = binaryExpr;
+    }
+
+    return node;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseMulDiv() {
+    auto node = parseExponent();
+
+    while (match(OPERATOR, "*") || match(OPERATOR, "/")) {
+        auto op = consume(OPERATOR).value().value;
+        auto right = parseExponent();
+        auto binaryExpr = std::make_shared<BinaryExpressionNode>();
+        binaryExpr->op = op;
+        binaryExpr->left = node;
+        binaryExpr->right = right;
+        node = binaryExpr;
+    }
+
+    return node;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseExponent() {
+    auto node = parsePrimary();
+
+    while (match(OPERATOR, "^")) {
+        auto op = consume(OPERATOR).value().value;
+        auto right = parsePrimary();
+        auto binaryExpr = std::make_shared<BinaryExpressionNode>();
+        binaryExpr->op = op;
+        binaryExpr->left = node;
+        binaryExpr->right = right;
+        node = binaryExpr;
+    }
+
+    return node;
+}
+
 
 std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
     std::shared_ptr<IdentifierNode> identifierNode;

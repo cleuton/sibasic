@@ -10,9 +10,9 @@ const char* LexerException::what() const noexcept {
 }
 
 Lexer::Lexer()
-    : commands({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}}),
-      functions({{"EXP", true}, {"ABS", true}, {"LOG", true}, {"SIN", true}, {"COS", true}, {"TAN", true}, {"SQR", true}}),
-      operators({{'+', true}, {'-', true}, {'*', true}, {'/', true}, {'^', true}, {'>', true}, {'<', true}, {'=', true}, {'!', true}}) {}
+    : comandos({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}}),
+      funcoes({{"EXP", true}, {"ABS", true}, {"LOG", true}, {"SIN", true}, {"COS", true}, {"TAN", true}, {"SQR", true}}),
+      operadores({{'+', true}, {'-', true}, {'*', true}, {'/', true}, {'^', true}, {'>', true}, {'<', true}, {'=', true}, {'!', true}}) {}
 
 
 
@@ -36,7 +36,7 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
             if (!isNumeric(basicLineNumber)) {
                 throw LexerException("Linha sem numero: " + std::string(1, input[pos]), basicLineNumber, input);
             }
-            tokens.push_back({LINENO, basicLineNumber});
+            tokens.push_back({NUMERO_LINHA, basicLineNumber});
             pos += basicLineNumber.length();
             continue;
         }
@@ -45,133 +45,107 @@ std::vector<Token> Lexer::tokenize(const std::string& input) {
             // inicio de literal
             trocarUnaryMinus = false;
             pos++;
-            std::string literal = readWhile([](int c) { return c != '\"'; });
+            std::string literal = lerEnquanto([](int c) { return c != '\"'; });
             if (pos<input.length()) {
                 pos++;
             }
-            tokens.push_back({LITERALSTRING, literal});
+            tokens.push_back({LITERAL_TEXTO, literal});
         } else if (isalpha(input[pos])) {
             trocarUnaryMinus = false;
-            std::string word = readWhile([](int c) { return std::isalnum(c); });
-            if (commands.count(word)) {
-                tokens.push_back({COMMAND, word});
-            } else if (functions.count(word)) {
-                tokens.push_back({FUNCTION, word});
+            std::string word = lerEnquanto([](int c) { return std::isalnum(c); });
+            if (comandos.count(word)) {
+                tokens.push_back({COMANDO, word});
+            } else if (funcoes.count(word)) {
+                tokens.push_back({FUNCAO, word});
             } else {
-                tokens.push_back({IDENTIFIER, word});
+                tokens.push_back({IDENTIFICADOR, word});
             }
         } else if (isdigit(input[pos]) || input[pos] == '.') {
             trocarUnaryMinus = false;
-            tokens.push_back({NUMBER, readWhile([](int c) { return std::isdigit(c) || c == '.'; })});
+            tokens.push_back({NUMERO, lerEnquanto([](int c) { return std::isdigit(c) || c == '.'; })});
         } else if (input[pos] == '(') {
             trocarUnaryMinus = true;
-            tokens.push_back({LPAREN, "("});
+            tokens.push_back({PARENTESIS_ESQUERDO, "("});
             pos++;
         } else if (input[pos] == ')') {
             trocarUnaryMinus = false;
-            tokens.push_back({RPAREN, ")"});
+            tokens.push_back({PARENTESIS_DIREITO, ")"});
             pos++;
         } else if (input[pos] == '[') {
             trocarUnaryMinus = false;
-            tokens.push_back({LCHAVE, "["});
+            tokens.push_back({CHAVE_ESQUERDA, "["});
             pos++;
         } else if (input[pos] == ']') {
             trocarUnaryMinus = false;
-            tokens.push_back({RCHAVE, "]"});
+            tokens.push_back({CHAVE_DIREITA, "]"});
             pos++;
         } else if (input[pos] == ',') {
             trocarUnaryMinus = false;
-            tokens.push_back({COMMA, ","});
+            tokens.push_back({VIRGULA, ","});
             pos++;
         } else if (input[pos] == '"') {
             trocarUnaryMinus = false;
-            tokens.push_back({DOUBLEQUOTE, "\""});
+            tokens.push_back({ASPAS_DUPLAS, "\""});
             pos++;
-        } else if (operators.count(input[pos])) {
+        } else if (operadores.count(input[pos])) {
             if (trocarUnaryMinus && input[pos] == '-') {
                 // Vamos trocar por "-1 *"
-                tokens.push_back({LPAREN, "("});
-                tokens.push_back({NUMBER, "1"});
-                tokens.push_back({OPERATOR, "-"});
-                tokens.push_back({NUMBER, "2"});
-                tokens.push_back({RPAREN, ")"});
-                tokens.push_back({OPERATOR, "*"});
+                tokens.push_back({PARENTESIS_ESQUERDO, "("});
+                tokens.push_back({NUMERO, "1"});
+                tokens.push_back({OPERADOR, "-"});
+                tokens.push_back({NUMERO, "2"});
+                tokens.push_back({PARENTESIS_DIREITO, ")"});
+                tokens.push_back({OPERADOR, "*"});
                 trocarUnaryMinus = false;
                 pos++;
             } else {
                 trocarUnaryMinus = true;
-                tokens.push_back({OPERATOR, std::string(1, input[pos])});
+                tokens.push_back({OPERADOR, std::string(1, input[pos])});
                 pos++;
             }
         } else {
-            throw LexerException("Unexpected character: " + std::string(1, input[pos]), basicLineNumber, input);
+            throw LexerException("Caractere inesperado: " + std::string(1, input[pos]), numeroDeLinhaBasic, input);
         }
     }
-    tokens.push_back({END_OF_LINE, ""});
-    validateCommand(tokens);
+    tokens.push_back({FIM_DE_LINHA, ""});
+    validarComando(tokens);
     return tokens;
 }
 
-std::string Lexer::readWhile(std::function<bool(int)> condition) {
+std::string Lexer::lerEnquanto(std::function<bool(int)> condicao) {
     std::string result;
-    while (pos < length && condition(input[pos])) {
+    while (pos < length && condicao(input[pos])) {
         result += input[pos];
         pos++;
     }
     return result;
 }
 
-void Lexer::validateCommand(const std::vector<Token>& tokens) {
+void Lexer::validarComando(const std::vector<Token>& tokens) {
     if (tokens.empty()) {
-        throw LexerException("Empty command", basicLineNumber, input);
+        throw LexerException("Comando vazio", numeroDeLinhaBasic, input);
     }
 
     const std::string& command = tokens[1].value;
     if (command == "LET") {
-        /*bool temEsquerdo = false;
-        bool temOperador = false;
-        bool temDireito = false;
-        for (int x=2; x<tokens.size(); x++) {
-            if (tokens[x].type == IDENTIFIER) {
-                temEsquerdo = true;
-            } else if (tokens[x].type == OPERATOR) {
-                temOperador = true;
-            } else if ((tokens[x].type == IDENTIFIER || tokens[x].type == NUMBER || tokens[x].type == FUNCTION || tokens[x].type == OPERATOR) && temEsquerdo) {
-                temDireito = true;
-                break;
-            }
-        }
-        if ((!temEsquerdo) || (!temOperador) || (!temDireito)) {
-            throw LexerException("Invalid LET statement", basicLineNumber, input);
-        }*/
+        /* Aqui podemos validar o LET */
     } else if (command == "DIM") {
-        if (tokens.size() != 5 || tokens[2].type != IDENTIFIER || tokens[3].type != NUMBER) {
-            throw LexerException("Invalid DIM statement", basicLineNumber, input);
+        if (tokens.size() != 5 || tokens[2].type != IDENTIFICADOR || tokens[3].type != NUMERO) {
+            throw LexerException("Comando DIM inválido", numeroDeLinhaBasic, input);
         }
     } else if (command == "PRINT") {
-        int paren_count = 0;
-        for (const auto& token : tokens) {
-            if (token.type == LPAREN) paren_count++;
-            if (token.type == RPAREN) paren_count--;
-        }
-        if (paren_count != 0) {
-            throw LexerException("Mismatched parentheses in PRINT statement", basicLineNumber, input);
-        }
         if (tokens.size() < 3) {
-            throw LexerException("Invalid PRINT statement", basicLineNumber, input);
+            throw LexerException("Comando PRINT inválido", numeroDeLinhaBasic, input);
         }
     } else if (command == "GOTO") {
-        if (tokens.size() != 4 || tokens[2].type != NUMBER) {
-            throw LexerException("Invalid GOTO statement", basicLineNumber, input);
+        if (tokens.size() != 4 || tokens[2].type != NUMERO) {
+            throw LexerException("Comando GOTO inválido", numeroDeLinhaBasic, input);
         }
     } else if (command == "IF") {
-        /*if (tokens.size() < 7 || (tokens[2].type != IDENTIFIER && tokens[2].type != NUMBER) || tokens[3].type != OPERATOR ||
-            (tokens[4].type != IDENTIFIER && tokens[4].type != NUMBER) || tokens[5].value != "THEN" || tokens[6].type != NUMBER) {
-            throw LexerException("Invalid IF statement", basicLineNumber, input);
-        }*/
+        /* Aqui podemos validar o IF*/
     } else if (command == "END") {
         if (tokens.size() != 3) {
-            throw LexerException("Invalid END statement", basicLineNumber, input);
+            throw LexerException("Comando END invalido", numeroDeLinhaBasic, input);
         }
     }
 }

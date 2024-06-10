@@ -14,34 +14,34 @@ Interpreter::Interpreter() {
 }
 
 
-double Interpreter::degreesToRadians(double degrees) {
+double Interpreter::grausParaRadianos(double degrees) {
     return degrees * M_PI / 180.0;
 }
 
-double Interpreter::processFunction(const std::string& functionName, double argument) {
-    if (functionName == "SIN") {
-        return std::sin(degreesToRadians(argument));
-    } else if (functionName == "COS") {
-        return std::cos(degreesToRadians(argument));
-    } else if (functionName == "TAN") {
-        return std::tan(degreesToRadians(argument));
-    } else if (functionName == "LOG") {
-        return std::log(argument);
-    } else if (functionName == "EXP") {
-        return std::exp(argument);
-    } else if (functionName == "SQR") {
-        return std::sqrt(argument);
-    } else if (functionName == "ABS") {
-        return std::abs(argument);
+double Interpreter::processarFuncao(const std::string& nomeDaFuncao, double argumento) {
+    if (nomeDaFuncao == "SIN") {
+        return std::sin(grausParaRadianos(argumento));
+    } else if (nomeDaFuncao == "COS") {
+        return std::cos(grausParaRadianos(argumento));
+    } else if (nomeDaFuncao == "TAN") {
+        return std::tan(grausParaRadianos(argumento));
+    } else if (nomeDaFuncao == "LOG") {
+        return std::log(argumento);
+    } else if (nomeDaFuncao == "EXP") {
+        return std::exp(argumento);
+    } else if (nomeDaFuncao == "SQR") {
+        return std::sqrt(argumento);
+    } else if (nomeDaFuncao == "ABS") {
+        return std::abs(argumento);
     }
-    throw std::runtime_error("Unsupported function: " + functionName);
+    throw std::runtime_error("Função não suportada: " + nomeDaFuncao);
 }
 
-void Interpreter::execute(const std::shared_ptr<ProgramNode>& program) {
+void Interpreter::executar(const std::shared_ptr<NoDePrograma>& programa) {
     int index = 0;
-    while (index < program->statements.size()) { // Enquanto o índice for menor que o tamanho do vetor
-        const auto& statement = program->statements[index];
-        int newIndex = executeStatement(statement, program);
+    while (index < programa->comandos.size()) { // Enquanto o índice for menor que o tamanho do vetor
+        const auto& statement = programa->comandos[index];
+        int newIndex = executarComando(statement, programa);
         if (newIndex>=0) {
             // Foi um GOTO ou um IF
             index = newIndex;
@@ -54,45 +54,45 @@ void Interpreter::execute(const std::shared_ptr<ProgramNode>& program) {
     }
 }
 
-int Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement, const std::shared_ptr<ProgramNode>& program) {
-    if (auto letStmt = std::dynamic_pointer_cast<LetStatementNode>(statement)) {
-        double value = evaluateExpression(letStmt->expression);
+int Interpreter::executarComando(const std::shared_ptr<NoDaAST>& comando, const std::shared_ptr<NoDePrograma>& programa) {
+    if (auto letStmt = std::dynamic_pointer_cast<NoDoComandoLET>(comando)) {
+        double value = avaliarExpressao(letStmt->expressao);
         if (letStmt->posicao.empty()) {
             // Não deveria ser um vetor...
-            if (vetores.find(letStmt->identifier) != vetores.end()) {
+            if (vetores.find(letStmt->identificador) != vetores.end()) {
                 std::ostringstream oss;
-                oss << "Vetor deve ser sempre indexado: " << letStmt->identifier;
+                oss << "Vetor deve ser sempre indexado: " << letStmt->identificador;
                 throw std::runtime_error(oss.str());
             }
-            variables[letStmt->identifier] = std::vector<double>(1, value);
+            variables[letStmt->identificador] = std::vector<double>(1, value);
         } else {
             // Deveria ser um vetor...
-            if (vetores.find(letStmt->identifier) == vetores.end()) {
+            if (vetores.find(letStmt->identificador) == vetores.end()) {
                 std::ostringstream oss;
-                oss << "Variavel nao e um vetor: " << letStmt->identifier;
+                oss << "Variavel nao e um vetor: " << letStmt->identificador;
                 throw std::runtime_error(oss.str());
             }
-            int posicao = getPosicao(letStmt->identifier, letStmt->posicao);
-            variables[letStmt->identifier].at(posicao) = value;
+            int posicao = getPosicao(letStmt->identificador, letStmt->posicao);
+            variables[letStmt->identificador].at(posicao) = value;
         }
-    } else if (auto printStmt = std::dynamic_pointer_cast<PrintStatementNode>(statement)) {
+    } else if (auto printStmt = std::dynamic_pointer_cast<NoDoComandoPRINT>(comando)) {
         if (printStmt->printLiteral) {
             std::cout << printStmt->literal << std::endl;
         } else {
-            double value = evaluateExpression(printStmt->expression);
+            double value = avaliarExpressao(printStmt->expressao);
             std::cout << value << std::endl;
         }
-    } else if (auto gotoStmt = std::dynamic_pointer_cast<GotoStatementNode>(statement)) {
+    } else if (auto gotoStmt = std::dynamic_pointer_cast<NoDoComandoGOTO>(comando)) {
         int index = 0;
-        while (index < program->statements.size()) {
-            const auto& statement = std::dynamic_pointer_cast<StatementNode>(program->statements[index]);
+        while (index < programa->comandos.size()) {
+            const auto& statement = std::dynamic_pointer_cast<NoDeComando>(programa->comandos[index]);
             if (statement->numeroLinha == gotoStmt->numeroLinhaDesvio) {
                 return index;
             }
             ++index;
         }
         throw std::runtime_error("Numero de linha inexistente");
-    } else if (auto dimStmt = std::dynamic_pointer_cast<DimStatementNode>(statement)) {
+    } else if (auto dimStmt = std::dynamic_pointer_cast<NoDoComandoDIM>(comando)) {
         if (variables.find(dimStmt->nomeVariavel) != variables.end()) {
             std::ostringstream oss;
             oss << "Já existe variável com esse nome: " << dimStmt->nomeVariavel;
@@ -100,12 +100,12 @@ int Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement, con
         }
         vetores[dimStmt->nomeVariavel] = dimStmt->numeroOcorrencias;
         variables[dimStmt->nomeVariavel] = std::vector<double>(dimStmt->numeroOcorrencias, 0.0);
-    } else if (auto endStmt = std::dynamic_pointer_cast<EndStatementNode>(statement)) {
+    } else if (auto endStmt = std::dynamic_pointer_cast<NoDoComandoEND>(comando)) {
         std::cout << "Comando END" << std::endl;
         return -2; // Terminar o programa
-    } else if (auto ifStmt = std::dynamic_pointer_cast<IfStatementNode>(statement)) {
-        double operando1 = evaluateExpression(ifStmt->operando1);
-        double operando2 = evaluateExpression(ifStmt->operando2);
+    } else if (auto ifStmt = std::dynamic_pointer_cast<NoDoComandoIF>(comando)) {
+        double operando1 = avaliarExpressao(ifStmt->operando1);
+        double operando2 = avaliarExpressao(ifStmt->operando2);
         double resultado = operando1 - operando2;
         bool trueFalse = false;
         if (ifStmt->operadorLogico == "=") {
@@ -124,19 +124,19 @@ int Interpreter::executeStatement(const std::shared_ptr<ASTNode>& statement, con
         if (trueFalse) {
             // vai desviar para a linha THEN
             int index = 0;
-            while (index < program->statements.size()) {
-                const auto& statement = std::dynamic_pointer_cast<StatementNode>(program->statements[index]);
+            while (index < programa->comandos.size()) {
+                const auto& statement = std::dynamic_pointer_cast<NoDeComando>(programa->comandos[index]);
                 if (statement->numeroLinha == ifStmt->numeroLinha) {
                     return index;
                 }
                 ++index;
             }
         }
-        return -1; // Condition was false
+        return -1;
     } else {
-        throw std::runtime_error("Unexpected statement type");
+        throw std::runtime_error("Tipo de comando inexperado");
     }
-    return -1; // Continua a iterar no próximo comando
+    return -1;
 }
 
 int Interpreter::getPosicao(const std::string &variavel, const std::string &indexador) {
@@ -167,10 +167,10 @@ int Interpreter::getPosicao(const std::string &variavel, const std::string &inde
 }
 
 
-double Interpreter::evaluateExpression(const std::shared_ptr<ASTNode>& expression) {
-    if (auto numberNode = std::dynamic_pointer_cast<NumberNode>(expression)) {
+double Interpreter::avaliarExpressao(const std::shared_ptr<NoDaAST>& expressao) {
+    if (auto numberNode = std::dynamic_pointer_cast<NoDeNumero>(expressao)) {
         return std::stod(numberNode->value);
-    } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(expression)) {
+    } else if (auto identifierNode = std::dynamic_pointer_cast<NoDeIdentificador>(expressao)) {
         if (variables.find(identifierNode->name) != variables.end()) {
             if (vetores.find(identifierNode->name) != vetores.end()) {
                 if (identifierNode->posicao.empty()) {
@@ -185,11 +185,11 @@ double Interpreter::evaluateExpression(const std::shared_ptr<ASTNode>& expressio
                 return variables[identifierNode->name].at(0);
             }
         } else {
-            throw std::runtime_error("Undefined variable: " + identifierNode->name);
+            throw std::runtime_error("Variável não declarada: " + identifierNode->name);
         }
-    } else if (auto binaryExpr = std::dynamic_pointer_cast<BinaryExpressionNode>(expression)) {
-        double left = evaluateExpression(binaryExpr->left);
-        double right = evaluateExpression(binaryExpr->right);
+    } else if (auto binaryExpr = std::dynamic_pointer_cast<NoDeExpressaoBinaria>(expressao)) {
+        double left = avaliarExpressao(binaryExpr->left);
+        double right = avaliarExpressao(binaryExpr->right);
         if (binaryExpr->op == "+") {
             return left + right;
         } else if (binaryExpr->op == "-") {
@@ -201,9 +201,9 @@ double Interpreter::evaluateExpression(const std::shared_ptr<ASTNode>& expressio
         } else if (binaryExpr->op == "^") {
             return std::pow(left, right);
         }
-    } else if (auto functionCall = std::dynamic_pointer_cast<FunctionCallNode>(expression)) {
-        double argument = evaluateExpression(functionCall->arguments[0]);
-        return processFunction(functionCall->functionName, argument);
+    } else if (auto functionCall = std::dynamic_pointer_cast<NoDeFuncao>(expressao)) {
+        double argument = avaliarExpressao(functionCall->argumentos[0]);
+        return processarFuncao(functionCall->nomeDaFuncao, argument);
     }
-    throw std::runtime_error("Unexpected expression type");
+    throw std::runtime_error("Tipo de expressão inesperado");
 }

@@ -28,14 +28,14 @@ private:
     std::string input;
     size_t pos;
     size_t length;
-    std::string basicLineNumber;
+    std::string numeroDeLinhaBasic;
 
-    std::unordered_map<std::string, bool> commands;
-    std::unordered_map<std::string, bool> functions;
-    std::unordered_map<char, bool> operators;
+    std::unordered_map<std::string, bool> comandos;
+    std::unordered_map<std::string, bool> funcoes;
+    std::unordered_map<char, bool> operadores;
 
-    std::string readWhile(std::function<bool(int)> condition);
-    void validateCommand(const std::vector<Token>& tokens);
+    std::string lerEnquanto(std::function<bool(int)> condicao);
+    void validarComando(const std::vector<Token>& tokens);
 };
 
 #endif // LEXER_H

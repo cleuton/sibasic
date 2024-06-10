@@ -10,17 +10,17 @@
 class Interpreter {
 public:
     Interpreter();
-    void execute(const std::shared_ptr<ProgramNode>& program);
-    int executeStatement(const std::shared_ptr<ASTNode>& statement, const std::shared_ptr<ProgramNode>& program);
-    double evaluateExpression(const std::shared_ptr<ASTNode>& expression);
+    void executar(const std::shared_ptr<NoDePrograma>& programa);
+    int executarComando(const std::shared_ptr<NoDaAST>& comando, const std::shared_ptr<NoDePrograma>& programa);
+    double avaliarExpressao(const std::shared_ptr<NoDaAST>& expressao);
 
 private:
     // Função para converter graus em radianos
-    double degreesToRadians(double degrees);
+    double grausParaRadianos(double degrees);
     std::unordered_map<std::string, std::vector<double>> variables;
     std::unordered_map<std::string, int> vetores;
     // Função para processar chamadas de função
-    double processFunction(const std::string& functionName, double argument);
+    double processarFuncao(const std::string& nomeDaFuncao, double argumento);
     int getPosicao(const std::string& varivavel, const std::string& indexador);
 };
 #endif //SIBASIC_INTERPRETER_H

@@ -8,96 +8,96 @@
 #include <exception>
 #include <optional>
 
-class ASTNode {
+class NoDaAST {
 public:
-    virtual ~ASTNode() = default;
+    virtual ~NoDaAST() = default;
 };
 
-using ASTNodePtr = std::shared_ptr<ASTNode>;
+using NoDaASTPtr = std::shared_ptr<NoDaAST>;
 
-class ProgramNode : public ASTNode {
+class NoDePrograma : public NoDaAST {
 public:
-    std::vector<ASTNodePtr> statements;
+    std::vector<NoDaASTPtr> comandos;
 };
 
-class StatementNode : public ASTNode {
+class NoDeComando : public NoDaAST {
 public:
     std::string numeroLinha;
-    virtual ~StatementNode() = default;
+    virtual ~NoDeComando() = default;
 };
 
-class LetStatementNode : public StatementNode {
+class NoDoComandoLET : public NoDeComando {
 public:
-    std::string identifier;
+    std::string identificador;
     std::string posicao;
-    ASTNodePtr expression;
+    NoDaASTPtr expressao;
 };
 
-class PrintStatementNode : public StatementNode {
+class NoDoComandoPRINT : public NoDeComando {
 public:
     bool printLiteral;
-    ASTNodePtr expression;
+    NoDaASTPtr expressao;
     std::string literal;
 };
 
-class GotoStatementNode : public StatementNode {
+class NoDoComandoGOTO : public NoDeComando {
 public:
     std::string numeroLinhaDesvio;
 };
 
-class DimStatementNode : public StatementNode {
+class NoDoComandoDIM : public NoDeComando {
 public:
     std::string nomeVariavel;
     int numeroOcorrencias = 0;
 };
 
-class EndStatementNode : public StatementNode {
+class NoDoComandoEND : public NoDeComando {
 
 };
 
-class IfStatementNode : public StatementNode {
+class NoDoComandoIF : public NoDeComando {
 public:
-    ASTNodePtr operando1;
+    NoDaASTPtr operando1;
     std::string operadorLogico;
-    ASTNodePtr operando2;
+    NoDaASTPtr operando2;
     std::string numeroLinha;
 };
 
-class ExpressionNode : public ASTNode {
+class NoDeExpressao : public NoDaAST {
 public:
-    virtual ~ExpressionNode() = default;
+    virtual ~NoDeExpressao() = default;
 };
 
-class FunctionCallNode : public ExpressionNode {
+class NoDeFuncao : public NoDeExpressao {
 public:
-    std::string functionName;
-    std::vector<ASTNodePtr> arguments;
+    std::string nomeDaFuncao;
+    std::vector<NoDaASTPtr> argumentos;
 
-    explicit FunctionCallNode(const std::string& functionName) : functionName(functionName) {}
+    explicit NoDeFuncao(const std::string& nomeDeFuncao) : nomeDaFuncao(nomeDeFuncao) {}
 };
 
 
 
-class BinaryExpressionNode : public ExpressionNode {
+class NoDeExpressaoBinaria : public NoDeExpressao {
 public:
     std::string op;
-    ASTNodePtr left;
-    ASTNodePtr right;
+    NoDaASTPtr left;
+    NoDaASTPtr right;
 };
 
 
 
-class NumberNode : public ExpressionNode {
+class NoDeNumero : public NoDeExpressao {
 public:
     std::string value;
-    explicit NumberNode(const std::string& value) : value(value) {}
+    explicit NoDeNumero(const std::string& value) : value(value) {}
 };
 
-class IdentifierNode : public ExpressionNode {
+class NoDeIdentificador : public NoDeExpressao {
 public:
     std::string name;
     std::string posicao;
-    explicit IdentifierNode(const std::string& name) : name(name) {}
+    explicit NoDeIdentificador(const std::string& name) : name(name) {}
 };
 
 class ParserException : public std::exception {
@@ -114,33 +114,34 @@ class Parser {
 public:
     explicit Parser(const std::vector<Token>& tokens);
 
-    std::shared_ptr<ProgramNode> parse();
+    std::shared_ptr<NoDePrograma> parse();
+    std::string tokenTypeName(TokenType type);
 
 private:
     std::vector<Token> tokens;
     size_t pos;
 
-    std::shared_ptr<StatementNode> parseStatement();
-    std::shared_ptr<LetStatementNode> parseLetStatement();
-    std::shared_ptr<PrintStatementNode> parsePrintStatement();
-    std::shared_ptr<GotoStatementNode> parseGotoStatement();
-    std::shared_ptr<DimStatementNode> parseDimStatement();
-    std::shared_ptr<EndStatementNode> parseEndStatement();
-    std::shared_ptr<IfStatementNode> parseIfStatement();
-    std::shared_ptr<ExpressionNode> parseExpression();
-    std::shared_ptr<ExpressionNode> parseAddSub();
-    std::shared_ptr<ExpressionNode> parseMulDiv();
-    std::shared_ptr<ExpressionNode> parseExponent();
-    std::shared_ptr<ExpressionNode> parsePrimary();
+    std::shared_ptr<NoDeComando> parseComando();
+    std::shared_ptr<NoDoComandoLET> parseComandoLET();
+    std::shared_ptr<NoDoComandoPRINT> parseComandoPRINT();
+    std::shared_ptr<NoDoComandoGOTO> parseComandoGOTO();
+    std::shared_ptr<NoDoComandoDIM> parseComandoDIM();
+    std::shared_ptr<NoDoComandoEND> parseComandoEND();
+    std::shared_ptr<NoDoComandoIF> parseComandoIF();
+    std::shared_ptr<NoDeExpressao> parseExpressao();
+    std::shared_ptr<NoDeExpressao> parseSomaSub();
+    std::shared_ptr<NoDeExpressao> parseMultDiv();
+    std::shared_ptr<NoDeExpressao> parseExponenciacao();
+    std::shared_ptr<NoDeExpressao> parsePrimaria();
 
-    bool match(TokenType type, const std::string& value = "");
-    std::optional<Token> consume(TokenType type, const std::string& value = "", bool deveExistir = true);
+    bool encontrar(TokenType type, const std::string& value = "");
+    std::optional<Token> consumir(TokenType type, const std::string& value = "", bool deveExistir = true);
 
-    std::string tokenTypeName(TokenType type);
+
 };
 
 void
 
- printAST(const std::shared_ptr<ASTNode>& node, int indent = 0);
+ mostrarAST(const std::shared_ptr<NoDaAST>& node, int indent = 0);
 
 #endif // PARSER_H

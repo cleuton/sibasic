@@ -17,6 +17,24 @@ analisador sintático para formar a estrutura gramatical do código. Em resumo, 
 - **Parser**: Arquivo parser.cpp. O parser (analisador sintático) é a segunda etapa de um interpretador. Ele recebe a sequência de tokens produzida pelo lexer e verifica se ela está de acordo com a gramática da linguagem de programação. O parser constrói uma representação hierárquica da estrutura do código, chamada de árvore de análise sintática (AST), que captura a relação entre os diferentes elementos do código, como expressões, declarações e comandos. Essa árvore é então utilizada pelo interpretador para realizar a execução do programa, interpretando cada nó da árvore e realizando as ações correspondentes de acordo com a semântica da linguagem. Em resumo, o parser traduz a sequência de tokens em uma estrutura de dados que o interpretador pode utilizar para entender e executar o código fonte.
 - **Interpreter**: Arquivo interpreter.cpp. Um Interpreter (intérprete) é a terceira e última etapa de um interpretador. Ele recebe a estrutura de dados produzida pelo parser, geralmente uma árvore de análise sintática (AST), e executa as instruções representadas por essa estrutura. O intérprete interpreta cada nó da árvore e executa as ações correspondentes de acordo com a semântica da linguagem de programação. Isso envolve avaliar expressões, executar comandos, controlar o fluxo do programa e interagir com o ambiente de execução. Em resumo, o intérprete é responsável por efetivamente executar o código fonte, transformando-o em resultados observáveis ou efeitos no sistema conforme definido pela linguagem.
 
+## Build do projeto
+
+Ele tem um arquivo **CMakeLists.txt** 
+
+Se não estiver instalado, instale o cmake (versão >= 3.28): 
+- sudo apt install cmake
+- sudo snap install cmake
+
+1. Clone o projeto.
+2. Crie uma pasta **build**.
+3. Vá para a pasta **build**.
+4. Execute o comando ```cmake ..```.
+5. Execute o comando ```make```.
+
+O executável **sibasic** estará na pasta **build**.
+
+Se quiser entender o **CMake** e o **CMakeLists.txt** vá para o título final deste arquivo. 
+
 ## Linhas válidas
 
 Toda linha de comando deve começar com um número de linha que não deve se repetir. Preferencialmente, devem vir em sequência, 
@@ -204,3 +222,133 @@ Equação do segundo grau com a **fórmula de Bhaskara**:
 * Delta negativo
 300 PRINT "O DELTA É NEGATIVO"
 ```
+
+Cálculos trigonométricos: 
+```basic
+* Calcula seno cosseno e tangente para vários ângulos em um circulo de raio 1.
+10 LET ANGULO = 0
+20 PRINT "ANGULO:"
+30 PRINT ANGULO
+40 PRINT "SENO:"
+50 PRINT SIN(ANGULO)
+60 PRINT "COSSENO:"
+70 PRINT COS(ANGULO)
+80 PRINT "TANGENTE:"
+90 PRINT TAN(ANGULO)
+100 LET ANGULO = ANGULO + 15
+110 IF ANGULO > 90 THEN 130
+120 GOTO 20
+130 END
+```
+
+## Entendendo o CMake e o CMakeLists.txt
+
+O arquivo `CMakeLists.txt` é um script de configuração usado pelo CMake, uma ferramenta de automação de build. Este arquivo define como o seu projeto deve ser construído, especificando os arquivos de código-fonte, dependências, bibliotecas, e outras opções de compilação. Em essência, `CMakeLists.txt` é uma receita que descreve o que é necessário para compilar e linkar seu projeto.
+
+Aqui está um exemplo detalhado de um `CMakeLists.txt` simples para um projeto C++:
+
+```cmake
+### Especifica a versão mínima do CMake necessária
+cmake_minimum_required(VERSION 3.10)
+
+### Nome do projeto
+project(MyProject)
+
+### Define o padrão de compilação como C++17
+set(CMAKE_CXX_STANDARD 17)
+
+### Adiciona o executável (nome do executável e arquivos de código-fonte)
+add_executable(MyExecutable main.cpp other_file.cpp)
+
+### Inclui diretórios de cabeçalho
+include_directories(include)
+
+### Adiciona bibliotecas necessárias
+### target_link_libraries(MyExecutable PRIVATE my_library)
+
+### Define flags de compilação (opcional)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+
+### Define variáveis de configuração (opcional)
+set(MY_VAR "SomeValue")
+```
+
+### Explicação dos comandos:
+
+1. **cmake_minimum_required(VERSION 3.10):** Define a versão mínima do CMake necessária para construir o projeto. Isso garante que o CMake utilizado suporte os comandos e recursos usados no script.
+
+2. **project(MyProject):** Define o nome do projeto. Isso também configura variáveis associadas ao projeto, como `MyProject_BINARY_DIR` e `MyProject_SOURCE_DIR`.
+
+3. **set(CMAKE_CXX_STANDARD 17):** Define o padrão C++ a ser usado (neste caso, C++17). Isso informa ao compilador para compilar o código com suporte para o padrão especificado.
+
+4. **add_executable(MyExecutable main.cpp other_file.cpp):** Adiciona um executável ao projeto. O primeiro argumento é o nome do executável, e os argumentos subsequentes são os arquivos de código-fonte que compõem o executável.
+
+5. **include_directories(include):** Inclui diretórios de cabeçalhos adicionais. Isso permite que você adicione diretórios onde estão localizados arquivos `.h` ou `.hpp` que devem ser incluídos no projeto.
+
+6. **target_link_libraries(MyExecutable PRIVATE my_library):** (Comentado neste exemplo) Linka bibliotecas externas ao executável. Substitua `my_library` pelo nome da biblioteca que deseja linkar.
+
+7. **set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror"):** Define flags de compilação adicionais. Neste exemplo, estamos adicionando flags para mostrar todos os avisos, avisos extras, e tratar avisos como erros.
+
+8. **set(MY_VAR "SomeValue"):** Define uma variável personalizada que pode ser usada em outras partes do `CMakeLists.txt`.
+
+### Exemplo de projeto com bibliotecas:
+
+Se você tem um projeto que depende de bibliotecas externas, o `CMakeLists.txt` pode ser mais complexo. Aqui está um exemplo que adiciona uma biblioteca e a linka ao executável:
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(MyProject)
+
+set(CMAKE_CXX_STANDARD 17)
+
+# Adiciona uma biblioteca estática
+add_library(MyLibrary STATIC src/mylibrary.cpp)
+
+# Inclui diretórios de cabeçalho
+include_directories(include)
+
+# Adiciona o executável
+add_executable(MyExecutable src/main.cpp src/other_file.cpp)
+
+# Linka a biblioteca ao executável
+target_link_libraries(MyExecutable PRIVATE MyLibrary)
+
+# Adiciona flags de compilação (opcional)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+```
+
+Neste exemplo:
+
+- `add_library(MyLibrary STATIC src/mylibrary.cpp)`: Cria uma biblioteca estática a partir do arquivo `mylibrary.cpp`.
+- `target_link_libraries(MyExecutable PRIVATE MyLibrary)`: Linka a biblioteca estática `MyLibrary` ao executável `MyExecutable`.
+
+### Passos para construir o projeto:
+
+Depois de criar seu `CMakeLists.txt`, siga os passos abaixo para construir o projeto:
+
+1. **Navegue até o diretório do projeto:**
+   ```sh
+   cd /path/to/your/project
+   ```
+
+2. **Crie um diretório de build:**
+   ```sh
+   mkdir build
+   cd build
+   ```
+
+3. **Execute o CMake para gerar os arquivos de build:**
+   ```sh
+   cmake ..
+   ```
+
+4. **Compile o projeto:**
+   ```sh
+   make
+   ```
+
+Esses passos gerarão e compilarão o projeto de acordo com as especificações no `CMakeLists.txt`.
+
+### Documentação Adicional:
+
+Para mais informações sobre CMake e `CMakeLists.txt`, consulte a [documentação oficial do CMake](https://cmake.org/documentation/).

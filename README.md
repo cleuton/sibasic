@@ -115,6 +115,7 @@ Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fa
 Eis a funcionalidade que pretendo acrescentar: 
 
 - **Entrada de dados** - Comando **INPUT**: ```LET A = INPUT```;
+- **Função geradora de números aleatórios** - Comando **RND**: ```LET N = RND(<menor>,<maior)```
 - **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
 - **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y```;
 - **Leitura e gravação de arquivos** - Comandos: 
@@ -123,6 +124,8 @@ Eis a funcionalidade que pretendo acrescentar:
   - **READ** - ```LET A = READ(ARQ)```;
   - **CLOSE** - ```CLOSE ARQ```;
 - **Loop com FOR** - Comando **FOR / NEXT**: ```FOR X=1 TO N... NEXT X```;
+- **Matrizes** - Variáveis bidimensionais: ```DIM M 10 7```;
+- **Dimensionar vetores e matrizes com variáveis***: ```DIM V X```
 
 E também pretendo gravar o programa em formato **AST - Abstract Syntax Three** binário, evitando nova interpretação. 
 Como um **bytecode**.
@@ -331,6 +334,38 @@ Cálculos trigonométricos:
 110 IF ANGULO > 90 THEN 130
 120 GOTO 20
 130 END
+```
+
+Estatística descritiva: 
+```basic
+* Calcula estatística descritiva de uma amostra
+10 DIM AMOSTRA 5
+12 LET AMOSTRA[1] = 1.345
+14 LET AMOSTRA[2] = 1.045
+16 LET AMOSTRA[3] = 1.545
+18 LET AMOSTRA[4] = 1.014
+20 LET AMOSTRA[5] = 1.845
+* Calcula a média
+25 LET MEDIA = 0
+30 LET I = 1
+35 LET MEDIA = MEDIA + AMOSTRA[I]
+40 LET I = I + 1
+45 IF I > 5 THEN 52
+50 GOTO 35
+52 LET MEDIA = MEDIA / 5
+55 PRINT "A MÉDIA É:"
+60 PRINT MEDIA
+* Calcula o desvio padrão
+65 LET J = 1
+70 LET DESVIO = 0
+75 LET DESVIO = DESVIO + (AMOSTRA[J] - MEDIA) ^ 2
+80 LET J = J + 1 
+85 IF J > 5 THEN 92
+90 GOTO 75
+* O desvio padrão amostral é dividido por n - 1:
+92 LET DESVIO = SQR(DESVIO / 4)
+95 PRINT "O DESVIO PADRÃO DA AMOSTRA É:"
+100 PRINT DESVIO 
 ```
 
 ## Entendendo o CMake e o CMakeLists.txt

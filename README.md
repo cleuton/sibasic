@@ -106,6 +106,11 @@ Comando END
 
 ```
 
+## Roadmap
+
+Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fazer um **pull request** que eu avalio. 
+
+Eis a funcionalidade que pretendo acrescentar: 
 
 ## Linhas válidas
 

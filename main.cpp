@@ -5,10 +5,16 @@
 #include <sstream>
 #include <fstream>
 
+const std::string VERSAO = "0.0.1";
+
 void executarPrograma(const std::string& input, bool verbose) {
     std::istringstream inputStream(input);
     std::string linha;
     auto programa = std::make_shared<NoDePrograma>();
+
+    if (verbose) {
+        std::cout << "SiBasic v " << VERSAO << std::endl;
+    }
 
     while (std::getline(inputStream, linha)) {
         Lexer lexer{};

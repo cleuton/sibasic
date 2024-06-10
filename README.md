@@ -3,6 +3,8 @@
 
 [**Cleuton Sampaio**](https://linkedin.com/in/cleutonsampaio)
 
+# VERSÃO 0.0.1
+
 SiBasic é um interpretador muito simples da linguagem **BASIC**. Na verdade, ele implementa um *subset* da linguagem, 
 para fins de estudo de algoritmos, estruturas de dados e compiladores. 
 
@@ -111,6 +113,19 @@ Comando END
 Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fazer um **pull request** que eu avalio. 
 
 Eis a funcionalidade que pretendo acrescentar: 
+
+- **Entrada de dados** - Comando **INPUT**: ```LET A = INPUT```;
+- **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
+- **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y```;
+- **Leitura e gravação de arquivos** - Comandos: 
+  - **OPEN** - ```LET ARQ = OPEN(<arquivo>)```;
+  - **WRITE** - ```WRITE ARQ <expressão>```;
+  - **READ** - ```LET A = READ(ARQ)```;
+  - **CLOSE** - ```CLOSE ARQ```;
+- **Loop com FOR** - Comando **FOR / NEXT**: ```FOR X=1 TO N... NEXT X```;
+
+E também pretendo gravar o programa em formato **AST - Abstract Syntax Three** binário, evitando nova interpretação. 
+Como um **bytecode**.
 
 ## Linhas válidas
 

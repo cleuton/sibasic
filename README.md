@@ -304,9 +304,16 @@ A linha 120 permite digitar um número para ser avaliado.
 Equação do segundo grau com a **fórmula de Bhaskara**: 
 ```basic
 * Coeficientes
-10 LET A = 1
-20 LET B = 12
-30 LET C = -13
+* Exemplos
+** Delta > 0: 1, 3, -4
+** Delta = 0: 1, -6, 9
+** Delta < 0: 1, 5, 7
+1 PRINT "COEFICIENTE A:"
+10 INPUT A
+11 PRINT "COEFICIENTE B:"
+20 INPUT B
+21 PRINT "COEFICIENTE C:"
+30 INPUT C
 * Delta
 40 LET D = B ^ 2 - 4 * A * C
 42 LET E = B ^ 2
@@ -314,13 +321,13 @@ Equação do segundo grau com a **fórmula de Bhaskara**:
 60 IF D < 0 THEN 300
 70 LET X1 = (-B + SQR(D)) / 2 * A
 80 LET X2 = (-B - SQR(D)) / 2 * A
-82 PRINT "O DELTA É POSITIVO"
+82 PRINT "O DELTA É POSITIVO RAIZES:"
 90 PRINT X1
 100 PRINT X2
 110 END
 * Delta zero
 200 LET X1 = -B / 2 * A
-205 PRINT "O DELTA É ZERO"
+205 PRINT "O DELTA É ZERO RAIZ:"
 210 PRINT X1
 220 END
 * Delta negativo

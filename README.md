@@ -115,7 +115,7 @@ Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fa
 Eis a funcionalidade que pretendo acrescentar: 
 
 - **Entrada de dados** - Comando **INPUT**: ```LET A = INPUT```;
-- **Função geradora de números aleatórios** - Comando **RND**: ```LET N = RND(<menor>,<maior)```
+- **Função geradora de números aleatórios** - Comando **RND**: ```LET N = RND()```
 - **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
 - **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y```;
 - **Leitura e gravação de arquivos** - Comandos: 

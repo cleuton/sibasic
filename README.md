@@ -393,6 +393,104 @@ Estatística descritiva:
 100 PRINT DESVIO 
 ```
 
+## Build para MS Windows
+
+Se você tem **MacOS** ou **Linux** e quer compilar para **MS Windows**, vou adaptar seu arquivo `CMakeLists.txt` existente para cross-compilation para Windows 64 bits. Seguindo os passos detalhados abaixo, você poderá compilar seu projeto `sibasic` para Windows a partir de uma máquina Linux.
+
+### Passo 1: Instale MinGW
+
+Primeiro, certifique-se de que o MinGW está instalado:
+
+```sh
+sudo apt update
+sudo apt install mingw-w64
+```
+
+### Passo 2: Crie o Arquivo de Toolchain
+
+Crie um arquivo chamado `toolchain.cmake` na raiz do seu projeto com o seguinte conteúdo:
+
+```cmake
+# toolchain.cmake
+
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM_PROCESSOR x86_64)
+
+# MinGW-w64 toolchain
+set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
+
+# Define os caminhos para a instalação do MinGW-w64
+set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
+
+# Ajusta o comportamento padrão dos comandos FIND_XXX() para procurar arquivos
+# nos caminhos root corretos
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+```
+
+### Passo 3: Utilize seu `CMakeLists.txt` existente
+
+O `CMakeLists.txt` está bem configurado para um projeto básico. Vamos utilizá-lo como está:
+
+```cmake
+cmake_minimum_required(VERSION 3.28)
+project(sibasic)
+
+set(CMAKE_CXX_STANDARD 17)
+
+add_executable(sibasic main.cpp
+        Token.h
+        Lexer.h
+        lexer.cpp
+        Parser.h
+        parser.cpp
+        Interpreter.h
+        interpreter.cpp
+        util.h
+        util.cpp)
+```
+
+### Passo 4: Configure e Compile o Projeto
+
+1. Crie um diretório de build:
+
+```sh
+mkdir build
+cd build
+```
+
+2. Configure o CMake para usar o arquivo de toolchain:
+
+```sh
+cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake ..
+```
+
+3. Compile o projeto:
+
+```sh
+make
+```
+
+Se tudo correr bem, você terá um executável Windows 64 bits gerado no diretório `build`.
+
+### Verificação
+
+Depois de seguir esses passos, você deverá ter um arquivo executável `sibasic.exe` no diretório `build`. Você pode transferir esse arquivo para um sistema Windows e executá-lo lá.
+
+### Resumo
+
+Para resumir, o processo envolve:
+
+1. Instalar MinGW para obter um compilador que suporte a geração de binários Windows a partir do Linux.
+2. Criar um arquivo de toolchain (`toolchain.cmake`) para configurar o CMake para usar o compilador MinGW.
+3. Utilizar seu `CMakeLists.txt` existente e seguir os passos para configurar e compilar o projeto.
+
+Dessa forma, você pode gerar um executável Windows 64 bits a partir do seu ambiente Linux.
+
 ## Entendendo o CMake e o CMakeLists.txt
 
 O arquivo `CMakeLists.txt` é um script de configuração usado pelo CMake, uma ferramenta de automação de build. Este arquivo define como o seu projeto deve ser construído, especificando os arquivos de código-fonte, dependências, bibliotecas, e outras opções de compilação. Em essência, `CMakeLists.txt` é uma receita que descreve o que é necessário para compilar e linkar seu projeto.

@@ -26,6 +26,8 @@ do MacOS você terá que autorizar a execução no item PRIVACIDADE E SEGURANÇA
 
 É só ver na parte de **RELEASES** do **GitHub** e procurar o binário para a sua plataforma.
 
+Nem todas as plataformas estarão lá. 
+
 Ele tem um arquivo **CMakeLists.txt** 
 
 Se não estiver instalado, instale o cmake (versão >= 3.28): 

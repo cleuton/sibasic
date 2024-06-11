@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <strings.h>
+#include <random>
 
 /*
 Copyright 2024 Cleuton Sampaio de Melo Junir
@@ -34,7 +35,7 @@ double Interpreter::grausParaRadianos(double degrees) {
     return degrees * M_PI / 180.0;
 }
 
-double Interpreter::processarFuncao(const std::string& nomeDaFuncao, double argumento) {
+double Interpreter::processarFuncao(const std::string& nomeDaFuncao, double argumento, bool temArgumentos) {
     if (nomeDaFuncao == "SIN") {
         return std::sin(grausParaRadianos(argumento));
     } else if (nomeDaFuncao == "COS") {
@@ -49,6 +50,11 @@ double Interpreter::processarFuncao(const std::string& nomeDaFuncao, double argu
         return std::sqrt(argumento);
     } else if (nomeDaFuncao == "ABS") {
         return std::abs(argumento);
+    } else if (nomeDaFuncao == "RND") {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(0.0, 1.0);
+        return dis(gen);
     }
     throw std::runtime_error("Função não suportada: " + nomeDaFuncao);
 }
@@ -223,8 +229,14 @@ double Interpreter::avaliarExpressao(const std::shared_ptr<NoDaAST>& expressao) 
             return std::pow(left, right);
         }
     } else if (auto functionCall = std::dynamic_pointer_cast<NoDeFuncao>(expressao)) {
-        double argument = avaliarExpressao(functionCall->argumentos[0]);
-        return processarFuncao(functionCall->nomeDaFuncao, argument);
+        if (!functionCall->argumentos.empty()) {
+            // Função tem argumentos
+            double argument = avaliarExpressao(functionCall->argumentos[0]);
+            return processarFuncao(functionCall->nomeDaFuncao, argument);
+        } else {
+            return processarFuncao(functionCall->nomeDaFuncao, 0.0, false);
+        }
+
     }
     throw std::runtime_error("Tipo de expressão inesperado");
 }

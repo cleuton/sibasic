@@ -21,7 +21,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-const std::string VERSAO = "0.0.2";
+const std::string VERSAO = "0.0.3";
 
 void executarPrograma(const std::string& input, bool verbose) {
     std::istringstream inputStream(input);

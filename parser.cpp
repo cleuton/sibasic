@@ -238,6 +238,11 @@ std::shared_ptr<NoDeExpressao> Parser::parsePrimaria() {
         auto functionToken = consumir(FUNCAO).value().value;
         auto functionCall = std::make_shared<NoDeFuncao>(functionToken);
         consumir(PARENTESIS_ESQUERDO);
+        // RND não tem argumentos. Mas precisamos generalizar esse comportamento
+        if (functionToken == "RND") {
+            consumir(PARENTESIS_DIREITO);
+            return functionCall;
+        }
         functionCall->argumentos.push_back(parseExpressao());
         while (encontrar(VIRGULA)) {
             consumir(VIRGULA);

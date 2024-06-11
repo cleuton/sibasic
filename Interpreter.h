@@ -34,7 +34,7 @@ private:
     std::unordered_map<std::string, std::vector<double>> variables;
     std::unordered_map<std::string, int> vetores;
     // Função para processar chamadas de função
-    double processarFuncao(const std::string& nomeDaFuncao, double argumento);
+    double processarFuncao(const std::string& nomeDaFuncao, double argumento, bool temArgumento = true);
     int getPosicao(const std::string& varivavel, const std::string& indexador);
 };
 #endif //SIBASIC_INTERPRETER_H

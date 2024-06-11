@@ -3,7 +3,7 @@
 
 [**Cleuton Sampaio**](https://linkedin.com/in/cleutonsampaio)
 
-# VERSÃO 0.0.2
+# VERSÃO 0.0.3
 
 SiBasic é um interpretador muito simples da linguagem **BASIC**. Na verdade, ele implementa um *subset* da linguagem, 
 para fins de estudo de algoritmos, estruturas de dados e compiladores. 
@@ -114,7 +114,6 @@ Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fa
 
 Eis a funcionalidade que pretendo acrescentar: 
 
-- **Função geradora de números aleatórios** - Comando **RND**: ```LET N = RND()```
 - **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
 - **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y```;
 - **Leitura e gravação de arquivos** - Comandos: 
@@ -264,6 +263,7 @@ Esta versão não permite utilizar o comando **DEF FN** para definir funções. 
 - **Exponenciação natural**: EXP
 - **Raíz quadrada**: SQR
 - **Valor absoluto**: ABS
+- **Número aleatório entre zero e 1**: RND
 
 As funções trigonométricas assumem que os ângulos estão em graus (e não em radianos).
 
@@ -356,11 +356,13 @@ Estatística descritiva:
 ```basic
 * Calcula estatística descritiva de uma amostra
 10 DIM AMOSTRA 5
-12 LET AMOSTRA[1] = 1.345
-14 LET AMOSTRA[2] = 1.045
-16 LET AMOSTRA[3] = 1.545
-18 LET AMOSTRA[4] = 1.014
-20 LET AMOSTRA[5] = 1.845
+12 LET X = 1
+13 PRINT "AMOSTRAS:"
+14 LET AMOSTRA[X] = 1 + RND() * 10
+15 PRINT AMOSTRA[X]
+16 LET X = X + 1
+18 IF X > 5 THEN 25
+20 GOTO 14
 * Calcula a média
 25 LET MEDIA = 0
 30 LET I = 1

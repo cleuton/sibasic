@@ -21,6 +21,11 @@ analisador sintático para formar a estrutura gramatical do código. Em resumo, 
 
 ## Build do projeto
 
+Se você não quiser ou não souber fazer o build do projeto, eu providenciarei binários para algumas plataformas. No caso 
+do MacOS você terá que autorizar a execução no item PRIVACIDADE E SEGURANÇA dos AJUSTES DO SISTEMA.
+
+É só ver na parte de **RELEASES** do **GitHub** e procurar o binário para a sua plataforma.
+
 Ele tem um arquivo **CMakeLists.txt** 
 
 Se não estiver instalado, instale o cmake (versão >= 3.28): 

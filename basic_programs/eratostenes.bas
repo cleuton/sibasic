@@ -14,8 +14,9 @@
 108 GOTO 100
 110 LET I = I + 1
 115 GOTO 70
-* Na próxima linha você define o número que quer verificar:
-120 LET N = 19
+* Na próxima linha você digita o número que quer verificar:
+120 PRINT "DIGITE UM NÚMERO DE 1 A 100"
+121 INPUT N
 122 PRINT "VERIFICANDO SE O NUMERO É PRIMO"
 123 PRINT N
 130 IF A[N] = 0 THEN 160

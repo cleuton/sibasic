@@ -149,6 +149,11 @@ int Interpreter::executarComando(const std::shared_ptr<NoDaAST>& comando, const 
             }
         }
         return -1;
+    } else if (auto inputStmt = std::dynamic_pointer_cast<NoDoComandoINPUT>(comando)) {
+        double valor;
+        std::cout << "# ";
+        std::cin >> valor;
+        variables[inputStmt->identificador] = std::vector<double>(1, valor);
     } else {
         throw std::runtime_error("Tipo de comando inexperado");
     }

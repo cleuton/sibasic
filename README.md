@@ -3,7 +3,7 @@
 
 [**Cleuton Sampaio**](https://linkedin.com/in/cleutonsampaio)
 
-# VERSÃO 0.0.1
+# VERSÃO 0.0.2
 
 SiBasic é um interpretador muito simples da linguagem **BASIC**. Na verdade, ele implementa um *subset* da linguagem, 
 para fins de estudo de algoritmos, estruturas de dados e compiladores. 
@@ -114,7 +114,6 @@ Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fa
 
 Eis a funcionalidade que pretendo acrescentar: 
 
-- **Entrada de dados** - Comando **INPUT**: ```LET A = INPUT```;
 - **Função geradora de números aleatórios** - Comando **RND**: ```LET N = RND()```
 - **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
 - **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y```;
@@ -156,6 +155,7 @@ Os seguintes comandos **BASIC** foram implementados:
 - **PRINT**: Exibe o resultado de uma expressão na console. Pode imprimir literais.
 - **IF**: Desvio condicional para uma linha.
 - **END**: Termina o programa.
+- **INPUT**: Lê um valor **double** digitado e atribui a uma variável.
 
 Este é um dos programas de exemplo: 
 ```basic
@@ -227,6 +227,14 @@ O primeiro operando não pode ser uma expressão, devendo ser uma variável. O s
 
 Termina a execução do programa. Pode haver mais de um comando **END** no seu programa. Ao encontrar este comando, a execução termina.
 
+### INPUT
+
+Lê um valor **double** digitado e o atribui a uma variável. Sintaxe:
+```basic
+20 INPUT X
+30 PRINT X
+```
+
 ## Expressões
 
 Os comandos **LET** e **PRINT** admitem expressões, que podem conter: **variáveis**, **operadores aritméticos**, **funções** e **negativo unário**.
@@ -279,8 +287,9 @@ Saber se um número é primo com o **crivo de Eratóstenes**:
 108 GOTO 100
 110 LET I = I + 1
 115 GOTO 70
-* Na próxima linha você define o número que quer verificar:
-120 LET N = 19
+* Na próxima linha você digita o número que quer verificar:
+120 PRINT "DIGITE UM NÚMERO DE 1 A 100"
+121 INPUT N
 122 PRINT "VERIFICANDO SE O NUMERO É PRIMO"
 123 PRINT N
 130 IF A[N] = 0 THEN 160
@@ -290,7 +299,7 @@ Saber se um número é primo com o **crivo de Eratóstenes**:
 170 END
 ```
 
-A linha 120 define um número a ser validado. 
+A linha 120 permite digitar um número para ser avaliado. 
 
 Equação do segundo grau com a **fórmula de Bhaskara**: 
 ```basic

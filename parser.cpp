@@ -55,6 +55,8 @@ std::shared_ptr<NoDeComando> Parser::parseComando() {
         return parseComandoEND();
     } else if (encontrar(COMANDO, "IF")) {
         return parseComandoIF();
+    } else if (encontrar(COMANDO, "INPUT")) {
+        return parseComandoINPUT();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }
@@ -138,6 +140,13 @@ std::shared_ptr<NoDoComandoIF> Parser::parseComandoIF() {
     consumir(IDENTIFICADOR, "THEN");
     ifStmt->numeroLinha = consumir(NUMERO).value().value;
     return ifStmt;
+}
+
+std::shared_ptr<NoDoComandoINPUT> Parser::parseComandoINPUT() {
+    consumir(COMANDO, "INPUT");
+    auto inputStmt = std::make_shared<NoDoComandoINPUT>();
+    inputStmt->identificador = consumir(IDENTIFICADOR).value().value;
+    return inputStmt;
 }
 
 std::shared_ptr<NoDeExpressao> Parser::parseExpressao() {
@@ -315,6 +324,9 @@ void mostrarAST(const std::shared_ptr<NoDaAST>& node, int indent) {
         std::cout << indentStr << "NoDoComandoIF: "
         << ifStmt->operando1 << " " << ifStmt->operadorLogico
         << " " << ifStmt->operando2 << " >> " << ifStmt->numeroLinha;
+    } else if (auto inputStmt = std::dynamic_pointer_cast<NoDoComandoINPUT>(node)) {
+        std::cout << indentStr << "NoDoComandoINPUT: "
+        << inputStmt->identificador << std::endl;
     } else if (auto binaryExpr = std::dynamic_pointer_cast<NoDeExpressaoBinaria>(node)) {
         std::cout << indentStr << "NoDeExpressaoBinaria: " << binaryExpr->op << std::endl;
         mostrarAST(binaryExpr->left, indent + 2);

@@ -79,6 +79,11 @@ public:
     std::string numeroLinha;
 };
 
+class NoDoComandoINPUT : public NoDeComando {
+public:
+    std::string identificador;
+};
+
 class NoDeExpressao : public NoDaAST {
 public:
     virtual ~NoDeExpressao() = default;
@@ -144,6 +149,7 @@ private:
     std::shared_ptr<NoDoComandoDIM> parseComandoDIM();
     std::shared_ptr<NoDoComandoEND> parseComandoEND();
     std::shared_ptr<NoDoComandoIF> parseComandoIF();
+    std::shared_ptr<NoDoComandoINPUT> parseComandoINPUT();
     std::shared_ptr<NoDeExpressao> parseExpressao();
     std::shared_ptr<NoDeExpressao> parseSomaSub();
     std::shared_ptr<NoDeExpressao> parseMultDiv();

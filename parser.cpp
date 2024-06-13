@@ -157,6 +157,85 @@ std::shared_ptr<NoDoComandoINPUT> Parser::parseComandoINPUT() {
     return inputStmt;
 }
 
+std::string Parser::encontrarNumeroOuIdentificador() {
+    std::string retorno;
+    if (encontrar(IDENTIFICADOR)) {
+        retorno = consumir(IDENTIFICADOR).value().value;
+    } else {
+        retorno = consumir(NUMERO).value().value;
+    }
+    return retorno;
+}
+
+std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
+    // Há duas formas: DRAW BEGIN e DRAW END. Elas tem que fazer par
+    consumir(COMANDO, "DRAW");
+    auto drawStmt = std::make_shared<NoDoComandoDRAW>();
+    if (encontrar(IDENTIFICADOR, "BEGIN")) {
+        // É um DRAW BEGIN
+        if (jaTemDrawBegin) {
+            throw ParserException("Dois DRAW BEGIN!");
+        }
+        drawStmt->tipo = consumir(IDENTIFICADOR).value().value;
+        jaTemDrawBegin = true;
+        drawStmt->altura = encontrarNumeroOuIdentificador();
+        drawStmt->largura = encontrarNumeroOuIdentificador();
+    } else {
+        // É um DRAW END
+        if (encontrar(IDENTIFICADOR, "END")) {
+            if (!jaTemDrawBegin) {
+                throw ParserException("Draw END sem DRAW BEGIN!");
+            }
+            drawStmt->tipo = consumir(IDENTIFICADOR, "END").value().value;
+        }
+    }
+    return drawStmt;
+}
+
+std::shared_ptr<NoDoComandoPLOT> Parser::parseComandoPLOT() {
+    consumir(COMANDO, "PLOT");
+    auto plotStmt = std::make_shared<NoDoComandoPLOT>();
+    plotStmt->posicaoX = encontrarNumeroOuIdentificador();
+    plotStmt->posicaoY = encontrarNumeroOuIdentificador();
+    plotStmt->espessura = encontrarNumeroOuIdentificador();
+    plotStmt->cor = consumir(IDENTIFICADOR).value().value;
+    if (encontrar(IDENTIFICADOR, "FILL")) {
+        plotStmt->preencher = true;
+        consumir(IDENTIFICADOR);
+    } else {
+        plotStmt->preencher = false;
+    }
+    return plotStmt;
+}
+
+std::shared_ptr<NoDoComandoLINE> Parser::parseComandoLINE() {
+    consumir(COMANDO, "LINE");
+    auto lineStmt = std::make_shared<NoDoComandoLINE>();
+    lineStmt->xInicial = encontrarNumeroOuIdentificador();
+    lineStmt->yInicial = encontrarNumeroOuIdentificador();
+    lineStmt->xFinal = encontrarNumeroOuIdentificador();
+    lineStmt->yFinal = encontrarNumeroOuIdentificador();
+    lineStmt->cor = consumir(IDENTIFICADOR).value().value;
+    return lineStmt;
+}
+
+std::shared_ptr<NoDoComandoRECTANGLE> Parser::parseComandoRECTANTLE() {
+    consumir(COMANDO, "RECTANGLE");
+    auto rectStmt = std::make_shared<NoDoComandoRECTANGLE>();
+    rectStmt->xCantoSuperiorEsquerdo = encontrarNumeroOuIdentificador();
+    rectStmt->yCantoSuperiorEsquerdo = encontrarNumeroOuIdentificador();
+    rectStmt->xCantoInferiorDireito = encontrarNumeroOuIdentificador();
+    rectStmt->yCantoInferiorDireito = encontrarNumeroOuIdentificador();
+    rectStmt->cor = consumir(IDENTIFICADOR).value().value;
+    if (encontrar(IDENTIFICADOR, "FILL")) {
+        rectStmt->preencher = true;
+        consumir(IDENTIFICADOR);
+    } else {
+        rectStmt->preencher = false;
+    }
+    return rectStmt;
+}
+
 std::shared_ptr<NoDeExpressao> Parser::parseExpressao() {
     return parseSomaSub();
 }
@@ -339,7 +418,31 @@ void mostrarAST(const std::shared_ptr<NoDaAST>& node, int indent) {
         << " " << ifStmt->operando2 << " >> " << ifStmt->numeroLinha;
     } else if (auto inputStmt = std::dynamic_pointer_cast<NoDoComandoINPUT>(node)) {
         std::cout << indentStr << "NoDoComandoINPUT: "
-        << inputStmt->identificador << std::endl;
+                  << inputStmt->identificador << std::endl;
+    } else if (auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(node)) {
+        std::cout << indentStr << "NoDoComandoDRAW: "
+                  << drawStmt->tipo << ", "
+                  << drawStmt->altura << ", " << drawStmt->largura
+                  << std::endl;
+    } else if (auto plotStmt = std::dynamic_pointer_cast<NoDoComandoPLOT>(node)) {
+        std::cout << indentStr << "NoDoComandoPLOT: "
+                  << plotStmt->posicaoX << ", "
+                  << plotStmt->posicaoY << ", " << plotStmt->cor
+                  << ", " << plotStmt->preencher
+                  << std::endl;
+    } else if (auto lineStmt = std::dynamic_pointer_cast<NoDoComandoLINE>(node)) {
+        std::cout << indentStr << "NoDoComandoLINE: "
+                  << lineStmt->xInicial << ", "
+                  << lineStmt->yInicial << ", " << lineStmt->xFinal
+                  << ", " << lineStmt->yFinal << ", " << lineStmt->cor
+                  << std::endl;
+    } else if (auto rectStmt = std::dynamic_pointer_cast<NoDoComandoRECTANGLE>(node)) {
+        std::cout << indentStr << "NoDoComandoRECTANGLE: "
+                  << rectStmt->xCantoSuperiorEsquerdo << ", "
+                  << rectStmt->yCantoSuperiorEsquerdo << ", " << rectStmt->xCantoInferiorDireito
+                  << ", " << rectStmt->yCantoInferiorDireito << ", " << rectStmt->cor
+                  << ", " << rectStmt->preencher
+                  << std::endl;
     } else if (auto binaryExpr = std::dynamic_pointer_cast<NoDeExpressaoBinaria>(node)) {
         std::cout << indentStr << "NoDeExpressaoBinaria: " << binaryExpr->op << std::endl;
         mostrarAST(binaryExpr->left, indent + 2);

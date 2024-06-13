@@ -57,6 +57,14 @@ std::shared_ptr<NoDeComando> Parser::parseComando() {
         return parseComandoIF();
     } else if (encontrar(COMANDO, "INPUT")) {
         return parseComandoINPUT();
+    } else if (encontrar(COMANDO,"DRAW" )) {
+        return parseComandoDRAW();
+    } else if (encontrar(COMANDO, "PLOT")) {
+        return parseComandoPLOT();
+    } else if (encontrar(COMANDO, "LINE")) {
+        return parseComandoLINE();
+    } else if (encontrar(COMANDO, "RECTANGLE")) {
+        return parseComandoRECTANTLE();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }

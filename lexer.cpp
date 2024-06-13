@@ -26,7 +26,8 @@ const char* LexerException::what() const noexcept {
 }
 
 Lexer::Lexer()
-    : comandos({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}, {"INPUT", true}}),
+    : comandos({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}, {"INPUT", true},
+                {"DRAW", true}, {"PLOT", true}, {"LINE", true}, {"RECTANGLE", true}}),
       funcoes({{"EXP", true}, {"ABS", true}, {"LOG", true}, {"SIN", true}, {"COS", true}, {"TAN", true}, {"SQR", true}, {"RND", true}}),
       operadores({{'+', true}, {'-', true}, {'*', true}, {'/', true}, {'^', true}, {'>', true}, {'<', true}, {'=', true}, {'!', true}}) {}
 
@@ -163,5 +164,24 @@ void Lexer::validarComando(const std::vector<Token>& tokens) {
         if (tokens.size() != 3) {
             throw LexerException("Comando END invalido", numeroDeLinhaBasic, input);
         }
+    } else if (command == "DRAW") {
+        if (tokens.size() < 3 || tokens[2].type != IDENTIFICADOR ) {
+            throw LexerException("Comando DRAW inválido", numeroDeLinhaBasic, input);
+        }
+    } else if (command == "PLOT" ) {
+        if (tokens.size() < 6 || tokens[2].type != NUMERO || tokens[3].type != NUMERO || tokens[4].type != NUMERO || tokens[5].type != IDENTIFICADOR) {
+            throw LexerException("Comando PLOT inválido", numeroDeLinhaBasic, input);
+        }
+    } else if (command == "LINE") {
+        if (tokens.size() < 7 || tokens[2].type != NUMERO || tokens[3].type != NUMERO || tokens[4].type != NUMERO
+            || tokens[5].type != NUMERO || tokens[6].type != IDENTIFICADOR) {
+            throw LexerException("Comando LINE inválido", numeroDeLinhaBasic, input);
+        }
+    } else if (command == "RECTANGLE") {
+        if (tokens.size() < 7 || tokens[2].type != NUMERO || tokens[3].type != NUMERO || tokens[4].type != NUMERO
+            || tokens[5].type != NUMERO || tokens[6].type != IDENTIFICADOR) {
+            throw LexerException("Comando RECTANGLE inválido", numeroDeLinhaBasic, input);
+        }
     }
+
 }

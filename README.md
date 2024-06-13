@@ -3,7 +3,7 @@
 
 [**Cleuton Sampaio**](https://linkedin.com/in/cleutonsampaio)
 
-# VERSÃO 0.0.3
+# VERSÃO 0.0.4
 
 SiBasic é um interpretador muito simples da linguagem **BASIC**. Na verdade, ele implementa um *subset* da linguagem, 
 para fins de estudo de algoritmos, estruturas de dados e compiladores. 
@@ -121,8 +121,9 @@ Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fa
 
 Eis a funcionalidade que pretendo acrescentar: 
 
+- **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y``` - Gera um arquivo SVG com o resultado;
+- **Desenhar figuras** - Comandos: **LINE**, **CIRCLE**, **SQUARE**;
 - **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
-- **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y```;
 - **Leitura e gravação de arquivos** - Comandos: 
   - **OPEN** - ```LET ARQ = OPEN(<arquivo>)```;
   - **WRITE** - ```WRITE ARQ <expressão>```;

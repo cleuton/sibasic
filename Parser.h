@@ -84,6 +84,44 @@ public:
     std::string identificador;
 };
 
+class NoDoComandoDRAW : public NoDeComando {
+public:
+    std::string identificador; // Begin ou end
+    std::string largura; // largura e altura podem ser variáveis ou números
+    std::string altura;
+};
+
+class NoDoComandoPLOT : public NoDeComando {
+public:
+    // Os atributos exceto o "preencher" podem ser variáveis ou números
+    std::string posicaoX;
+    std::string posicaoY;
+    std::string espessura;
+    std::string cor;
+    bool preencher;
+};
+
+class NoDoComandoLINE : public NoDeComando {
+public:
+    // Os atributos podem ser variáveis ou números
+    std::string xInicial;
+    std::string yInicial;
+    std::string xFinal;
+    std::string yFinal;
+    std::string cor;
+};
+
+class NoDoComandoRECTANGLE : public NoDeComando {
+public:
+    // Os atributos exceto o "preencher" podem ser variáveis ou números
+    std::string xCantoSuperiorEsquerdo;
+    std::string yCantoSuperiorEsquerdo;
+    std::string xCantoInferiorDireito;
+    std::string yCantoInferiorDireito;
+    std::string cor;
+    bool preencher;
+};
+
 class NoDeExpressao : public NoDaAST {
 public:
     virtual ~NoDeExpressao() = default;
@@ -150,6 +188,10 @@ private:
     std::shared_ptr<NoDoComandoEND> parseComandoEND();
     std::shared_ptr<NoDoComandoIF> parseComandoIF();
     std::shared_ptr<NoDoComandoINPUT> parseComandoINPUT();
+    std::shared_ptr<NoDoComandoDRAW> parseComandoDRAW();
+    std::shared_ptr<NoDoComandoPLOT> parseComandoPLOT();
+    std::shared_ptr<NoDoComandoLINE> parseComandoLINE();
+    std::shared_ptr<NoDoComandoRECTANGLE> parseComandoRECTANTLE();
     std::shared_ptr<NoDeExpressao> parseExpressao();
     std::shared_ptr<NoDeExpressao> parseSomaSub();
     std::shared_ptr<NoDeExpressao> parseMultDiv();

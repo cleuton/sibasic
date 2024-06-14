@@ -186,6 +186,7 @@ std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
             if (!jaTemDrawBegin) {
                 throw ParserException("Draw END sem DRAW BEGIN!");
             }
+            jaTemDrawBegin = false;
             drawStmt->tipo = consumir(IDENTIFICADOR, "END").value().value;
         }
     }

@@ -8,6 +8,11 @@
 #include <sstream>
 #include <strings.h>
 #include <random>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <ctime>
+#include <filesystem>
 
 /*
 Copyright 2024 Cleuton Sampaio de Melo Junir
@@ -24,6 +29,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+const std::string defaultViewPortFileName = "_DRAW";
+
+Interpreter::Interpreter(std::string basicScriptName) : basicScriptName(basicScriptName){}
 
 Interpreter::Interpreter() {
     // Inicialize variáveis com um map vazio
@@ -73,6 +82,61 @@ void Interpreter::executar(const std::shared_ptr<NoDePrograma>& programa) {
             break;
         }
         ++index; // Incrementa o índice para avançar para o próximo elemento
+    }
+}
+
+std::string getViewportFileName(std::string basicScriptName) {
+    // Obter o tempo atual
+    std::time_t now = std::time(nullptr);
+    std::tm* localTime = std::localtime(&now);
+
+    // Usar stringstream para formatar a data e hora
+    std::stringstream ss;
+    ss << std::put_time(localTime, "%Y-%m-%d_%H-%M-%S");
+
+    try {
+        // Obtendo o diretório atual
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        char pathSeparator = std::filesystem::path::preferred_separator;
+        std::stringstream filePath;
+        filePath << currentPath << pathSeparator
+        << basicScriptName << defaultViewPortFileName << "_"
+        << ss.str() << ".svg";
+        return filePath.str();
+    } catch (const std::filesystem::filesystem_error& e) {
+        throw std::runtime_error("Erro ao obter o diretório atual");
+    }
+
+    return "";
+}
+
+void Interpreter::executarComandoDraw(const std::shared_ptr<NoDaAST>& comando) {
+    auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(comando);
+    if (drawStmt->tipo == "END") {
+        std::string viewPortFileName = getViewportFileName(Interpreter::basicScriptName);
+        // Cria o arquivo SVG
+        std::ofstream viewPortFile(viewPortFileName);
+        if (viewPortFile.is_open()) {
+
+            // Escreve os elementos SVG
+            for (const auto& elemento : Interpreter::elementosSvg) {
+                viewPortFile << elemento << std::endl;
+            }
+
+            // Escreve o rodapé do SVG
+            viewPortFile << "</svg>" << std::endl;
+            viewPortFile.close();
+        } else {
+            throw std::runtime_error("Erro ao abrir o arquivo para escrita.\n");
+        }
+    } else  {
+        // Begin
+        std::stringstream sBegin;
+        //"<svg width=\"" + std::to_string(width) + "\" height=\"" + std::to_string(height) + "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+        sBegin << "<svg width=\"" << drawStmt->largura << "\""
+                << " height=\"" << drawStmt->altura << "\""
+                << "\" xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
+        Interpreter::elementosSvg.push_back(sBegin.str());
     }
 }
 
@@ -160,6 +224,8 @@ int Interpreter::executarComando(const std::shared_ptr<NoDaAST>& comando, const 
         std::cout << "# ";
         std::cin >> valor;
         variables[inputStmt->identificador] = std::vector<double>(1, valor);
+    } else if (auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(comando)) {
+        executarComandoDraw(comando);
     } else {
         throw std::runtime_error("Tipo de comando inexperado");
     }

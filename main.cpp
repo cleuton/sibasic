@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <filesystem>
 
 /*
 Copyright 2024 Cleuton Sampaio de Melo Junir
@@ -23,7 +24,7 @@ limitations under the License.
 
 const std::string VERSAO = "0.0.4";
 
-void executarPrograma(const std::string& input, bool verbose) {
+void executarPrograma(const std::string basicScriptName, const std::string& input, bool verbose) {
     std::istringstream inputStream(input);
     std::string linha;
     auto programa = std::make_shared<NoDePrograma>();
@@ -74,11 +75,17 @@ void executarPrograma(const std::string& input, bool verbose) {
     }
 
     try {
-        Interpreter interpreter;
+        Interpreter interpreter(basicScriptName);
         interpreter.executar(programa);
     } catch (const std::runtime_error& e) {
         std::cerr << "Erro de interpreter: " << e.what() << std::endl;
     }
+}
+
+std::string getScriptName(const std::string filePath) {
+    std::filesystem::path pathObj(filePath);
+    // Obtendo o nome do arquivo
+    return pathObj.filename().string();
 }
 
 int main(int argc, char *argv[]) {
@@ -103,6 +110,7 @@ int main(int argc, char *argv[]) {
         filename = argv[1];
     }
 
+    std::string basicScriptName = getScriptName(filename);
     std::ifstream file(filename);
     if (!file) {
         std::cerr << "Falha ao abrir arquivo: " << filename << std::endl;
@@ -113,7 +121,7 @@ int main(int argc, char *argv[]) {
     buffer << file.rdbuf();
     std::string input = buffer.str();
 
-    executarPrograma(input, verbose);
+    executarPrograma(basicScriptName,input, verbose);
 
     return 0;
 }

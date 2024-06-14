@@ -121,8 +121,6 @@ Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fa
 
 Eis a funcionalidade que pretendo acrescentar: 
 
-- **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y``` - Gera um arquivo SVG com o resultado;
-- **Desenhar figuras** - Comandos: **LINE**, **CIRCLE**, **SQUARE**;
 - **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
 - **Leitura e gravação de arquivos** - Comandos: 
   - **OPEN** - ```LET ARQ = OPEN(<arquivo>)```;
@@ -163,6 +161,7 @@ Os seguintes comandos **BASIC** foram implementados:
 - **IF**: Desvio condicional para uma linha.
 - **END**: Termina o programa.
 - **INPUT**: Lê um valor **double** digitado e atribui a uma variável.
+- **DRAW**: Inicializa ou termina um arquivo SVG com desenhos;
 
 Este é um dos programas de exemplo: 
 ```basic
@@ -241,6 +240,22 @@ Lê um valor **double** digitado e o atribui a uma variável. Sintaxe:
 20 INPUT X
 30 PRINT X
 ```
+
+### DRAW
+
+O comando **DRAW** serve para inicializar ou terminar desenhos (pontos, círculos, linhas e retângulos). 
+O **SiBasic** permite desenhar em um arquico **SVG**. Essa solução é melhor para multiplataforma. 
+
+Será criado um arquivo **SVG**, na pasta do executável do SiBasic, com o nome:
+```shell
+<path>/<nome do script Basic>_DRAW_AAA-MM-DD_HH-MM-SS.svg
+````
+Há duas formas do comando **DRAW** de uso obrigatório e em sequência em conjunto: 
+
+- **DRAW BEGIN** altura, largura: Inicializa o SVG com a altura e largura máximas;
+- **DRAW END**: Finaliza e grava o arquivo.
+
+Todos os comandos de desenho emitidos entre o **DRAW BEGIN** e o **DRAW END** serão gravados no arquivo como tags **SVG**. Vários editores abrem arquivos SVG inclusive navegadores web.
 
 ## Expressões
 

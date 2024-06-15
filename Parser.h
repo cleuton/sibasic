@@ -87,16 +87,16 @@ public:
 class NoDoComandoDRAW : public NoDeComando {
 public:
     std::string tipo; // Begin ou end
-    std::string largura; // largura e altura podem ser variáveis ou números
-    std::string altura;
+    NoDaASTPtr largura; // largura e altura podem ser variáveis ou números
+    NoDaASTPtr altura;
 };
 
 class NoDoComandoPLOT : public NoDeComando {
 public:
     // Os atributos exceto o "preencher" podem ser variáveis ou números
-    std::string posicaoX;
-    std::string posicaoY;
-    std::string espessura;
+    NoDaASTPtr posicaoX;
+    NoDaASTPtr posicaoY;
+    NoDaASTPtr espessura;
     std::string cor;
     bool preencher;
 };
@@ -104,20 +104,20 @@ public:
 class NoDoComandoLINE : public NoDeComando {
 public:
     // Os atributos podem ser variáveis ou números
-    std::string xInicial;
-    std::string yInicial;
-    std::string xFinal;
-    std::string yFinal;
+    NoDaASTPtr xInicial;
+    NoDaASTPtr yInicial;
+    NoDaASTPtr xFinal;
+    NoDaASTPtr yFinal;
     std::string cor;
 };
 
 class NoDoComandoRECTANGLE : public NoDeComando {
 public:
     // Os atributos exceto o "preencher" podem ser variáveis ou números
-    std::string xCantoSuperiorEsquerdo;
-    std::string yCantoSuperiorEsquerdo;
-    std::string xCantoInferiorDireito;
-    std::string yCantoInferiorDireito;
+    NoDaASTPtr xCantoSuperiorEsquerdo;
+    NoDaASTPtr yCantoSuperiorEsquerdo;
+    NoDaASTPtr xCantoInferiorDireito;
+    NoDaASTPtr yCantoInferiorDireito;
     std::string cor;
     bool preencher;
 };

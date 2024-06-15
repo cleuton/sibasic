@@ -131,13 +131,62 @@ void Interpreter::executarComandoDraw(const std::shared_ptr<NoDaAST>& comando) {
         }
     } else  {
         // Begin
+        double altura = avaliarExpressao(drawStmt->altura);
+        double largura = avaliarExpressao(drawStmt->largura);
         std::stringstream sBegin;
-        //"<svg width=\"" + std::to_string(width) + "\" height=\"" + std::to_string(height) + "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-        sBegin << "<svg width=\"" << drawStmt->largura << "\""
-                << " height=\"" << drawStmt->altura << "\""
+        sBegin << "<svg width=\"" << largura << "\""
+                << " height=\"" << altura << "\""
                 << "\" xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
         Interpreter::elementosSvg.push_back(sBegin.str());
     }
+}
+
+void Interpreter::executarComandoPlot(const std::shared_ptr<NoDaAST> &comando) {
+    auto plotStmt = std::dynamic_pointer_cast<NoDoComandoPLOT>(comando);
+    double x = avaliarExpressao(plotStmt->posicaoX);
+    double y = avaliarExpressao(plotStmt->posicaoY);
+    double raio = avaliarExpressao(plotStmt->espessura);
+    std::string cor = plotStmt->cor;
+    std::string fill = "";
+    if (plotStmt->preencher) {
+        fill = " fill=\"" + cor + "\"";
+    }
+    std::string circle = "<circle cx=\"" + std::to_string(x) + "\" cy=\"" + std::to_string(y) +
+                         "\" r=\"" + std::to_string(raio) +
+                         " stroke=\"" + cor + "\" stroke-width=\"1\"" +
+                         "\"" + fill +  " />\n";
+    Interpreter::elementosSvg.push_back(circle);
+}
+
+void Interpreter::executarComandoRectangle(const std::shared_ptr<NoDaAST> &comando) {
+    auto rectStmt = std::dynamic_pointer_cast<NoDoComandoRECTANGLE>(comando);
+    double x1 = avaliarExpressao(rectStmt->xCantoSuperiorEsquerdo);
+    double y1 = avaliarExpressao(rectStmt->yCantoSuperiorEsquerdo);
+    double x2 = avaliarExpressao(rectStmt->xCantoInferiorDireito);
+    double y2 = avaliarExpressao(rectStmt->yCantoInferiorDireito);
+    std::string cor =  rectStmt->cor;
+    std::string fill = "";
+    if (rectStmt->preencher) {
+        fill = " fill=\"" + cor + "\"";
+    }
+    std::string rectangle = "<rect x=\"" + std::to_string(x1) + "\" y=\"" + std::to_string(y1) +
+                            "\" width=\"" + std::to_string(x2 - x1) + "\" height=\"" + std::to_string(y2 - y1) +
+                            fill +
+                            "\" stroke=\"" + cor + "\" stroke-width=\"1\" />\n";
+    Interpreter::elementosSvg.push_back(rectangle);
+}
+
+void Interpreter::executarComandoLine(const std::shared_ptr<NoDaAST> &comando) {
+    auto lineStmt = std::dynamic_pointer_cast<NoDoComandoLINE>(comando);
+    double x1 = avaliarExpressao(lineStmt->xInicial);
+    double y1 = avaliarExpressao(lineStmt->yInicial);
+    double x2 = avaliarExpressao(lineStmt->xFinal);
+    double y2 = avaliarExpressao(lineStmt->yFinal);
+    std::string cor = lineStmt->cor;
+    std::string line = "<line x1=\"" + std::to_string(x1) + "\" y1=\"" + std::to_string(y1) +
+                       "\" x2=\"" + std::to_string(x2) + "\" y2=\"" + std::to_string(y2) +
+                       "\" stroke=\"" + cor + "\" stroke-width=\"1\" />\n";
+    Interpreter::elementosSvg.push_back(line);
 }
 
 int Interpreter::executarComando(const std::shared_ptr<NoDaAST>& comando, const std::shared_ptr<NoDePrograma>& programa) {
@@ -226,6 +275,12 @@ int Interpreter::executarComando(const std::shared_ptr<NoDaAST>& comando, const 
         variables[inputStmt->identificador] = std::vector<double>(1, valor);
     } else if (auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(comando)) {
         executarComandoDraw(comando);
+    } else if (auto plotStmt = std::dynamic_pointer_cast<NoDoComandoPLOT>(comando)) {
+        executarComandoPlot(comando);
+    } else if (auto lineStmt = std::dynamic_pointer_cast<NoDoComandoLINE>(comando)) {
+        executarComandoLine(comando);
+    } else if (auto rectStmt = std::dynamic_pointer_cast<NoDoComandoRECTANGLE>(comando)) {
+        executarComandoRectangle(comando);
     } else {
         throw std::runtime_error("Tipo de comando inexperado");
     }

@@ -178,8 +178,8 @@ std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
         }
         drawStmt->tipo = consumir(IDENTIFICADOR).value().value;
         jaTemDrawBegin = true;
-        drawStmt->altura = encontrarNumeroOuIdentificador();
-        drawStmt->largura = encontrarNumeroOuIdentificador();
+        drawStmt->altura = parseExpressao();
+        drawStmt->largura = parseExpressao();
     } else {
         // É um DRAW END
         if (encontrar(IDENTIFICADOR, "END")) {
@@ -194,11 +194,14 @@ std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
 }
 
 std::shared_ptr<NoDoComandoPLOT> Parser::parseComandoPLOT() {
+    if (!jaTemDrawBegin) {
+        throw ParserException("PLOT sem DRAW BEGIN!");
+    }
     consumir(COMANDO, "PLOT");
     auto plotStmt = std::make_shared<NoDoComandoPLOT>();
-    plotStmt->posicaoX = encontrarNumeroOuIdentificador();
-    plotStmt->posicaoY = encontrarNumeroOuIdentificador();
-    plotStmt->espessura = encontrarNumeroOuIdentificador();
+    plotStmt->posicaoX = parseExpressao();
+    plotStmt->posicaoY = parseExpressao();
+    plotStmt->espessura = parseExpressao();
     plotStmt->cor = consumir(IDENTIFICADOR).value().value;
     if (encontrar(IDENTIFICADOR, "FILL")) {
         plotStmt->preencher = true;
@@ -210,23 +213,29 @@ std::shared_ptr<NoDoComandoPLOT> Parser::parseComandoPLOT() {
 }
 
 std::shared_ptr<NoDoComandoLINE> Parser::parseComandoLINE() {
+    if (!jaTemDrawBegin) {
+        throw ParserException("LINE sem DRAW BEGIN!");
+    }
     consumir(COMANDO, "LINE");
     auto lineStmt = std::make_shared<NoDoComandoLINE>();
-    lineStmt->xInicial = encontrarNumeroOuIdentificador();
-    lineStmt->yInicial = encontrarNumeroOuIdentificador();
-    lineStmt->xFinal = encontrarNumeroOuIdentificador();
-    lineStmt->yFinal = encontrarNumeroOuIdentificador();
+    lineStmt->xInicial = parseExpressao();
+    lineStmt->yInicial = parseExpressao();
+    lineStmt->xFinal = parseExpressao();
+    lineStmt->yFinal = parseExpressao();
     lineStmt->cor = consumir(IDENTIFICADOR).value().value;
     return lineStmt;
 }
 
 std::shared_ptr<NoDoComandoRECTANGLE> Parser::parseComandoRECTANTLE() {
+    if (!jaTemDrawBegin) {
+        throw ParserException("RECTANGLE sem DRAW BEGIN!");
+    }
     consumir(COMANDO, "RECTANGLE");
     auto rectStmt = std::make_shared<NoDoComandoRECTANGLE>();
-    rectStmt->xCantoSuperiorEsquerdo = encontrarNumeroOuIdentificador();
-    rectStmt->yCantoSuperiorEsquerdo = encontrarNumeroOuIdentificador();
-    rectStmt->xCantoInferiorDireito = encontrarNumeroOuIdentificador();
-    rectStmt->yCantoInferiorDireito = encontrarNumeroOuIdentificador();
+    rectStmt->xCantoSuperiorEsquerdo = parseExpressao();
+    rectStmt->yCantoSuperiorEsquerdo = parseExpressao();
+    rectStmt->xCantoInferiorDireito = parseExpressao();
+    rectStmt->yCantoInferiorDireito = parseExpressao();
     rectStmt->cor = consumir(IDENTIFICADOR).value().value;
     if (encontrar(IDENTIFICADOR, "FILL")) {
         rectStmt->preencher = true;

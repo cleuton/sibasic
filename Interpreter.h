@@ -41,5 +41,8 @@ private:
     double processarFuncao(const std::string& nomeDaFuncao, double argumento, bool temArgumento = true);
     int getPosicao(const std::string& varivavel, const std::string& indexador);
     void executarComandoDraw(const std::shared_ptr<NoDaAST>& comando);
+    void executarComandoPlot(const std::shared_ptr<NoDaAST>& comando);
+    void executarComandoLine(const std::shared_ptr<NoDaAST>& comando);
+    void executarComandoRectangle(const std::shared_ptr<NoDaAST>& comando);
 };
 #endif //SIBASIC_INTERPRETER_H

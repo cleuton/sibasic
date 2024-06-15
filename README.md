@@ -162,6 +162,9 @@ Os seguintes comandos **BASIC** foram implementados:
 - **END**: Termina o programa.
 - **INPUT**: Lê um valor **double** digitado e atribui a uma variável.
 - **DRAW**: Inicializa ou termina um arquivo SVG com desenhos;
+- **PLOT**: Desenha pontos ou círculos;
+- **LINE**: Desenha linhas;
+- **RECTANGLE**: Desenha retângulos;
 
 Este é um dos programas de exemplo: 
 ```basic
@@ -256,6 +259,52 @@ Há duas formas do comando **DRAW** de uso obrigatório e em sequência em conju
 - **DRAW END**: Finaliza e grava o arquivo.
 
 Todos os comandos de desenho emitidos entre o **DRAW BEGIN** e o **DRAW END** serão gravados no arquivo como tags **SVG**. Vários editores abrem arquivos SVG inclusive navegadores web.
+
+## PLOT 
+
+Este comando desenha um ponto ou um círculo dependendo do valor passado no raio: 
+```shell
+PLOT <x>,<y>,<raio>,<cor>,[FILL]
+```
+
+As coordenadas X e Y são o centro do ponto ou círculo.
+
+Para desenhar um ponto, passe raio = 1. O atributo cor pode ser obtido em: https://www.w3.org/TR/SVG11/types.html#ColorKeywords. Exemplos: 
+- BLACK
+- RED
+- YELLOW
+- WHITE
+- BLUE
+- GREEN
+- GRAY
+
+O atributo **FILL** se estiver presente preencherá o retângulo com a cor escolhida.
+
+## LINE
+
+O comando **LINE** desenha uma linha, com espessura 1 e uma cor que você pode escolher: 
+```shell
+LINE <x>,<y>,<x2>,<y2>,<cor>
+```
+
+As coordenadas X e Y são o ponto inicial e X2 e Y2 são o ponto final. O atributo **cor** é o mesmo do comando **PLOT**.
+
+## RECTANGLE
+
+Este comando desenha um retângulo vazado ou uma caixa: 
+```shell
+RECTANGLE <topleft x>, <topleft y>, <bottomright x>, <bottomright y>, <cor>, [FILL]
+```
+
+- **topLeft x**: X do canto superior esquerdo.
+- **topLeft y**: Y do canto superior esquerdo.
+- **bottom right x**: X do canto inferior direito.
+- **bottom right y**: Y do canto inferior direito.
+- **cor**: Semelhante à do comando **PLOT**.
+- **FILL**: Se informado, preenche o retângulo com a cor especificada.
+
+
+As coordenadas X e Y são o ponto inicial e X2 e Y2 são o ponto final. O atributo **cor** é o mesmo do comando **PLOT**.
 
 ## Expressões
 

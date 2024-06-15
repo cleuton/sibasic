@@ -32,9 +32,7 @@ limitations under the License.
 
 const std::string defaultViewPortFileName = "_DRAW";
 
-Interpreter::Interpreter(std::string basicScriptName) : basicScriptName(basicScriptName){}
-
-Interpreter::Interpreter() {
+Interpreter::Interpreter(std::string basicScriptName) : basicScriptName(basicScriptName) {
     // Inicialize variáveis com um map vazio
     variables = std::unordered_map<std::string, std::vector<double>>();
 }
@@ -98,11 +96,10 @@ std::string getViewportFileName(std::string basicScriptName) {
         // Obtendo o diretório atual
         std::filesystem::path currentPath = std::filesystem::current_path();
         char pathSeparator = std::filesystem::path::preferred_separator;
-        std::stringstream filePath;
-        filePath << currentPath << pathSeparator
-        << basicScriptName << defaultViewPortFileName << "_"
-        << ss.str() << ".svg";
-        return filePath.str();
+        std::string filePath = currentPath.string() + std::string(1,pathSeparator)
+                + basicScriptName + defaultViewPortFileName + "_"
+                + ss.str() + ".svg";
+        return filePath;
     } catch (const std::filesystem::filesystem_error& e) {
         throw std::runtime_error("Erro ao obter o diretório atual");
     }
@@ -112,7 +109,7 @@ std::string getViewportFileName(std::string basicScriptName) {
 
 void Interpreter::executarComandoDraw(const std::shared_ptr<NoDaAST>& comando) {
     auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(comando);
-    if (drawStmt->tipo == "END") {
+    if (drawStmt->tipo == "FINISH") {
         std::string viewPortFileName = getViewportFileName(Interpreter::basicScriptName);
         // Cria o arquivo SVG
         std::ofstream viewPortFile(viewPortFileName);
@@ -135,7 +132,7 @@ void Interpreter::executarComandoDraw(const std::shared_ptr<NoDaAST>& comando) {
         double largura = avaliarExpressao(drawStmt->largura);
         std::stringstream sBegin;
         sBegin << "<svg width=\"" << largura << "\""
-                << " height=\"" << altura << "\""
+                << " height=\"" << altura
                 << "\" xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
         Interpreter::elementosSvg.push_back(sBegin.str());
     }
@@ -147,14 +144,14 @@ void Interpreter::executarComandoPlot(const std::shared_ptr<NoDaAST> &comando) {
     double y = avaliarExpressao(plotStmt->posicaoY);
     double raio = avaliarExpressao(plotStmt->espessura);
     std::string cor = plotStmt->cor;
-    std::string fill = "";
+    std::string fill = " fill=\"none\" ";
     if (plotStmt->preencher) {
         fill = " fill=\"" + cor + "\"";
     }
     std::string circle = "<circle cx=\"" + std::to_string(x) + "\" cy=\"" + std::to_string(y) +
-                         "\" r=\"" + std::to_string(raio) +
+                         "\" r=\"" + std::to_string(raio) + "\"" +
                          " stroke=\"" + cor + "\" stroke-width=\"1\"" +
-                         "\"" + fill +  " />\n";
+                         fill +  " />\n";
     Interpreter::elementosSvg.push_back(circle);
 }
 
@@ -165,14 +162,14 @@ void Interpreter::executarComandoRectangle(const std::shared_ptr<NoDaAST> &coman
     double x2 = avaliarExpressao(rectStmt->xCantoInferiorDireito);
     double y2 = avaliarExpressao(rectStmt->yCantoInferiorDireito);
     std::string cor =  rectStmt->cor;
-    std::string fill = "";
+    std::string fill = " fill=\"none\" ";
     if (rectStmt->preencher) {
         fill = " fill=\"" + cor + "\"";
     }
     std::string rectangle = "<rect x=\"" + std::to_string(x1) + "\" y=\"" + std::to_string(y1) +
                             "\" width=\"" + std::to_string(x2 - x1) + "\" height=\"" + std::to_string(y2 - y1) +
-                            fill +
-                            "\" stroke=\"" + cor + "\" stroke-width=\"1\" />\n";
+                            "\"" + fill +
+                            " stroke=\"" + cor + "\" stroke-width=\"1\" />\n";
     Interpreter::elementosSvg.push_back(rectangle);
 }
 

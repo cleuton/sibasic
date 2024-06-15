@@ -255,8 +255,8 @@ Será criado um arquivo **SVG**, na pasta do executável do SiBasic, com o nome:
 ````
 Há duas formas do comando **DRAW** de uso obrigatório e em sequência em conjunto: 
 
-- **DRAW BEGIN** altura, largura: Inicializa o SVG com a altura e largura máximas;
-- **DRAW END**: Finaliza e grava o arquivo.
+- **DRAW START** altura, largura: Inicializa o SVG com a altura e largura máximas;
+- **DRAW FINISH**: Finaliza e grava o arquivo.
 
 Todos os comandos de desenho emitidos entre o **DRAW BEGIN** e o **DRAW END** serão gravados no arquivo como tags **SVG**. Vários editores abrem arquivos SVG inclusive navegadores web.
 

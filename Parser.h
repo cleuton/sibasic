@@ -191,7 +191,7 @@ private:
     std::shared_ptr<NoDoComandoDRAW> parseComandoDRAW();
     std::shared_ptr<NoDoComandoPLOT> parseComandoPLOT();
     std::shared_ptr<NoDoComandoLINE> parseComandoLINE();
-    std::shared_ptr<NoDoComandoRECTANGLE> parseComandoRECTANTLE();
+    std::shared_ptr<NoDoComandoRECTANGLE> parseComandoRECTANGLE();
     std::shared_ptr<NoDeExpressao> parseExpressao();
     std::shared_ptr<NoDeExpressao> parseSomaSub();
     std::shared_ptr<NoDeExpressao> parseMultDiv();

@@ -64,7 +64,7 @@ std::shared_ptr<NoDeComando> Parser::parseComando() {
     } else if (encontrar(COMANDO, "LINE")) {
         return parseComandoLINE();
     } else if (encontrar(COMANDO, "RECTANGLE")) {
-        return parseComandoRECTANTLE();
+        return parseComandoRECTANGLE();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }
@@ -168,26 +168,28 @@ std::string Parser::encontrarNumeroOuIdentificador() {
 }
 
 std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
-    // Há duas formas: DRAW BEGIN e DRAW END. Elas tem que fazer par
+    // Há duas formas: DRAW START e DRAW FINISH. Elas tem que fazer par
     consumir(COMANDO, "DRAW");
     auto drawStmt = std::make_shared<NoDoComandoDRAW>();
-    if (encontrar(IDENTIFICADOR, "BEGIN")) {
-        // É um DRAW BEGIN
+    if (encontrar(IDENTIFICADOR, "START")) {
+        // É um DRAW START
         if (jaTemDrawBegin) {
-            throw ParserException("Dois DRAW BEGIN!");
+            throw ParserException("Dois DRAW START!");
         }
         drawStmt->tipo = consumir(IDENTIFICADOR).value().value;
         jaTemDrawBegin = true;
+
         drawStmt->altura = parseExpressao();
+        consumir(VIRGULA);
         drawStmt->largura = parseExpressao();
     } else {
         // É um DRAW END
-        if (encontrar(IDENTIFICADOR, "END")) {
+        if (encontrar(IDENTIFICADOR, "FINISH")) {
             if (!jaTemDrawBegin) {
-                throw ParserException("Draw END sem DRAW BEGIN!");
+                throw ParserException("Draw FINISH sem DRAW START!");
             }
             jaTemDrawBegin = false;
-            drawStmt->tipo = consumir(IDENTIFICADOR, "END").value().value;
+            drawStmt->tipo = consumir(IDENTIFICADOR, "FINISH").value().value;
         }
     }
     return drawStmt;
@@ -195,53 +197,70 @@ std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
 
 std::shared_ptr<NoDoComandoPLOT> Parser::parseComandoPLOT() {
     if (!jaTemDrawBegin) {
-        throw ParserException("PLOT sem DRAW BEGIN!");
+        throw ParserException("PLOT sem DRAW START!");
     }
     consumir(COMANDO, "PLOT");
     auto plotStmt = std::make_shared<NoDoComandoPLOT>();
     plotStmt->posicaoX = parseExpressao();
+    consumir(VIRGULA);
     plotStmt->posicaoY = parseExpressao();
+    consumir(VIRGULA);
     plotStmt->espessura = parseExpressao();
+    consumir(VIRGULA);
     plotStmt->cor = consumir(IDENTIFICADOR).value().value;
-    if (encontrar(IDENTIFICADOR, "FILL")) {
-        plotStmt->preencher = true;
-        consumir(IDENTIFICADOR);
-    } else {
-        plotStmt->preencher = false;
+    if (encontrar(VIRGULA, ",")) {
+        consumir(VIRGULA);
+        if (encontrar(IDENTIFICADOR, "FILL")) {
+            plotStmt->preencher = true;
+            consumir(IDENTIFICADOR);
+        } else {
+            plotStmt->preencher = false;
+        }
     }
     return plotStmt;
 }
 
 std::shared_ptr<NoDoComandoLINE> Parser::parseComandoLINE() {
     if (!jaTemDrawBegin) {
-        throw ParserException("LINE sem DRAW BEGIN!");
+        throw ParserException("LINE sem DRAW START!");
     }
     consumir(COMANDO, "LINE");
     auto lineStmt = std::make_shared<NoDoComandoLINE>();
     lineStmt->xInicial = parseExpressao();
+    consumir(VIRGULA);
     lineStmt->yInicial = parseExpressao();
+    consumir(VIRGULA);
     lineStmt->xFinal = parseExpressao();
+    consumir(VIRGULA);
     lineStmt->yFinal = parseExpressao();
+    consumir(VIRGULA);
     lineStmt->cor = consumir(IDENTIFICADOR).value().value;
     return lineStmt;
 }
 
-std::shared_ptr<NoDoComandoRECTANGLE> Parser::parseComandoRECTANTLE() {
+std::shared_ptr<NoDoComandoRECTANGLE> Parser::parseComandoRECTANGLE() {
     if (!jaTemDrawBegin) {
-        throw ParserException("RECTANGLE sem DRAW BEGIN!");
+        throw ParserException("RECTANGLE sem DRAW START!");
     }
     consumir(COMANDO, "RECTANGLE");
     auto rectStmt = std::make_shared<NoDoComandoRECTANGLE>();
     rectStmt->xCantoSuperiorEsquerdo = parseExpressao();
+    consumir(VIRGULA);
     rectStmt->yCantoSuperiorEsquerdo = parseExpressao();
+    consumir(VIRGULA);
     rectStmt->xCantoInferiorDireito = parseExpressao();
+    consumir(VIRGULA);
     rectStmt->yCantoInferiorDireito = parseExpressao();
+    consumir(VIRGULA);
     rectStmt->cor = consumir(IDENTIFICADOR).value().value;
-    if (encontrar(IDENTIFICADOR, "FILL")) {
-        rectStmt->preencher = true;
-        consumir(IDENTIFICADOR);
-    } else {
-        rectStmt->preencher = false;
+    if (tokens.size() == 14) {
+        consumir(VIRGULA);
+        if (encontrar(IDENTIFICADOR, "FILL")) {
+            rectStmt->preencher = true;
+            consumir(IDENTIFICADOR);
+        } else {
+            rectStmt->preencher = false;
+        }
     }
     return rectStmt;
 }

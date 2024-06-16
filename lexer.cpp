@@ -26,7 +26,8 @@ const char* LexerException::what() const noexcept {
 }
 
 Lexer::Lexer()
-    : comandos({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}, {"INPUT", true}}),
+    : comandos({{"DIM", true}, {"END", true}, {"LET", true}, {"PRINT", true}, {"GOTO", true}, {"IF", true}, {"INPUT", true},
+                {"DRAW", true}, {"PLOT", true}, {"LINE", true}, {"RECTANGLE", true}}),
       funcoes({{"EXP", true}, {"ABS", true}, {"LOG", true}, {"SIN", true}, {"COS", true}, {"TAN", true}, {"SQR", true}, {"RND", true}}),
       operadores({{'+', true}, {'-', true}, {'*', true}, {'/', true}, {'^', true}, {'>', true}, {'<', true}, {'=', true}, {'!', true}}) {}
 
@@ -163,5 +164,37 @@ void Lexer::validarComando(const std::vector<Token>& tokens) {
         if (tokens.size() != 3) {
             throw LexerException("Comando END invalido", numeroDeLinhaBasic, input);
         }
+    } else if (command == "DRAW") {
+        if (tokens.size() < 4) {
+            throw LexerException("Comando DRAW inválido 1", numeroDeLinhaBasic, input);
+        }
+        if (tokens[2].type != IDENTIFICADOR) {
+            throw LexerException("Comando DRAW inválido 2", numeroDeLinhaBasic, input);
+        }
+        if (tokens[2].value != "START" && tokens[2].value != "FINISH") {
+            throw LexerException("Comando DRAW inválido 3", numeroDeLinhaBasic, input);
+        }
+        if (tokens[2].value == "START") {
+            if (tokens.size() != 7) {
+                throw LexerException("Comando DRAW inválido 4", numeroDeLinhaBasic, input);
+            }
+            if ((tokens[3].type != IDENTIFICADOR && tokens[3].type != NUMERO)) {
+                throw LexerException("Comando DRAW inválido 5", numeroDeLinhaBasic, input);
+            }
+        }
+
+    } else if (command == "PLOT" ) {
+        if (tokens.size() < 10) {
+            throw LexerException("Comando PLOT inválido 1", numeroDeLinhaBasic, input);
+        }
+    } else if (command == "LINE") {
+        if (tokens.size() < 12) {
+            throw LexerException("Comando LINE inválido 1", numeroDeLinhaBasic, input);
+        }
+    } else if (command == "RECTANGLE") {
+        if (tokens.size() < 12) {
+            throw LexerException("Comando RECTANGLE inválido 1", numeroDeLinhaBasic, input);
+        }
     }
+
 }

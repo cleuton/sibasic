@@ -23,12 +23,16 @@ limitations under the License.
 
 class Interpreter {
 public:
-    Interpreter();
+    Interpreter(std::string basicScriptName);
     void executar(const std::shared_ptr<NoDePrograma>& programa);
     int executarComando(const std::shared_ptr<NoDaAST>& comando, const std::shared_ptr<NoDePrograma>& programa);
     double avaliarExpressao(const std::shared_ptr<NoDaAST>& expressao);
 
 private:
+    std::string basicScriptName;
+    std::string svgViewPort;
+    std::string currentSvgFilePath;
+    std::vector<std::string> elementosSvg;
     // Função para converter graus em radianos
     double grausParaRadianos(double degrees);
     std::unordered_map<std::string, std::vector<double>> variables;
@@ -36,5 +40,9 @@ private:
     // Função para processar chamadas de função
     double processarFuncao(const std::string& nomeDaFuncao, double argumento, bool temArgumento = true);
     int getPosicao(const std::string& varivavel, const std::string& indexador);
+    void executarComandoDraw(const std::shared_ptr<NoDaAST>& comando);
+    void executarComandoPlot(const std::shared_ptr<NoDaAST>& comando);
+    void executarComandoLine(const std::shared_ptr<NoDaAST>& comando);
+    void executarComandoRectangle(const std::shared_ptr<NoDaAST>& comando);
 };
 #endif //SIBASIC_INTERPRETER_H

@@ -3,7 +3,7 @@
 
 [**Cleuton Sampaio**](https://linkedin.com/in/cleutonsampaio)
 
-# VERSÃO 0.0.3
+# VERSÃO 0.0.4
 
 SiBasic é um interpretador muito simples da linguagem **BASIC**. Na verdade, ele implementa um *subset* da linguagem, 
 para fins de estudo de algoritmos, estruturas de dados e compiladores. 
@@ -122,7 +122,6 @@ Pretendo acrescentar alguns comandos e caso alguém queira participar, é só fa
 Eis a funcionalidade que pretendo acrescentar: 
 
 - **Subrotinas** - Comando **GOSUB / RETURN**: ```GOSUB 100 ... RETURN```;
-- **Plotagem de pontos** - Comando **PLOT**: ```PLOT X,Y```;
 - **Leitura e gravação de arquivos** - Comandos: 
   - **OPEN** - ```LET ARQ = OPEN(<arquivo>)```;
   - **WRITE** - ```WRITE ARQ <expressão>```;
@@ -162,6 +161,10 @@ Os seguintes comandos **BASIC** foram implementados:
 - **IF**: Desvio condicional para uma linha.
 - **END**: Termina o programa.
 - **INPUT**: Lê um valor **double** digitado e atribui a uma variável.
+- **DRAW**: Inicializa ou termina um arquivo SVG com desenhos;
+- **PLOT**: Desenha pontos ou círculos;
+- **LINE**: Desenha linhas;
+- **RECTANGLE**: Desenha retângulos;
 
 Este é um dos programas de exemplo: 
 ```basic
@@ -240,6 +243,112 @@ Lê um valor **double** digitado e o atribui a uma variável. Sintaxe:
 20 INPUT X
 30 PRINT X
 ```
+
+### DRAW
+
+O comando **DRAW** serve para inicializar ou terminar desenhos (pontos, círculos, linhas e retângulos). 
+O **SiBasic** permite desenhar em um arquico **SVG**. Essa solução é melhor para multiplataforma. 
+
+Será criado um arquivo **SVG**, na pasta do executável do SiBasic, com o nome:
+```shell
+<path>/<nome do script Basic>_DRAW_AAA-MM-DD_HH-MM-SS.svg
+````
+Há duas formas do comando **DRAW** de uso obrigatório e em sequência em conjunto: 
+
+- **DRAW START** altura, largura: Inicializa o SVG com a altura e largura máximas;
+- **DRAW FINISH**: Finaliza e grava o arquivo.
+
+Todos os comandos de desenho emitidos entre o **DRAW BEGIN** e o **DRAW END** serão gravados no arquivo como tags **SVG**. Vários editores abrem arquivos SVG inclusive navegadores web.
+
+## PLOT 
+
+Este comando desenha um ponto ou um círculo dependendo do valor passado no raio: 
+```shell
+PLOT <x>,<y>,<raio>,<cor>,[FILL]
+```
+
+As coordenadas X e Y são o centro do ponto ou círculo.
+
+Para desenhar um ponto, passe raio = 1. O atributo cor pode ser obtido em: https://www.w3.org/TR/SVG11/types.html#ColorKeywords. Exemplos: 
+- BLACK
+- RED
+- YELLOW
+- WHITE
+- BLUE
+- GREEN
+- GRAY
+
+O atributo **FILL** se estiver presente preencherá o retângulo com a cor escolhida.
+
+## LINE
+
+O comando **LINE** desenha uma linha, com espessura 1 e uma cor que você pode escolher: 
+```shell
+LINE <x>,<y>,<x2>,<y2>,<cor>
+```
+
+As coordenadas X e Y são o ponto inicial e X2 e Y2 são o ponto final. O atributo **cor** é o mesmo do comando **PLOT**.
+
+## RECTANGLE
+
+Este comando desenha um retângulo vazado ou uma caixa: 
+```shell
+RECTANGLE <topleft x>, <topleft y>, <bottomright x>, <bottomright y>, <cor>, [FILL]
+```
+
+- **topLeft x**: X do canto superior esquerdo.
+- **topLeft y**: Y do canto superior esquerdo.
+- **bottom right x**: X do canto inferior direito.
+- **bottom right y**: Y do canto inferior direito.
+- **cor**: Semelhante à do comando **PLOT**.
+- **FILL**: Se informado, preenche o retângulo com a cor especificada.
+
+
+As coordenadas X e Y são o ponto inicial e X2 e Y2 são o ponto final. O atributo **cor** é o mesmo do comando **PLOT**.
+
+## Exemplos dos comandos de desenho
+
+Aqui está um exemplo básico de desenho: 
+```basic
+10 LET X = 10
+20 LET Y = 10
+30 DRAW START 500, 500
+* PLOT <x>,<y>,<raio>,<cor>,[FILL]
+40 PLOT X, Y, 1, BLUE
+* LINE <x>,<y>,<x2>,<y2>,<cor>
+50 LINE X, Y, 100, 100, RED
+* RECTANGLE <topleft x>, <topleft y>, <bottomright x>, <bottomright y>, <cor>,[FILL]
+60 RECTANGLE X, Y, 100, 100, GREEN
+70 DRAW FINISH
+```
+
+Eis o arquivo resultante "desenhos.bas_DRAW_2024-06-16_10-07-21.svg":
+
+![](desenhos.png)
+
+E outro exemplo que desenha círculos aleatórios:
+```basic
+* Desenha bolinhas aleatórias
+10 DIM X 20
+20 DIM Y 20
+30 DIM RAIO 20
+40 LET I = 1
+50 LET X[I] = RND() * 1000
+60 LET Y[I] = RND() * 1000
+70 LET RAIO[I] = RND() * 100
+80 LET I = I + 1
+90 IF I < 20 THEN 50
+100 DRAW START 10000, 10000
+110 LET I = 1
+120 PLOT X[I], Y[I], RAIO[I], BLUE, FILL
+130 LET I = I + 1
+140 IF I < 20 THEN 120
+150 DRAW FINISH
+```
+
+Eis o arquivo resultante  "randomplot.bas_DRAW_2024-06-16_10-08-54.svg":
+
+![](randomplot.png)
 
 ## Expressões
 

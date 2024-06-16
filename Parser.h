@@ -84,6 +84,44 @@ public:
     std::string identificador;
 };
 
+class NoDoComandoDRAW : public NoDeComando {
+public:
+    std::string tipo; // Begin ou end
+    NoDaASTPtr largura; // largura e altura podem ser variáveis ou números
+    NoDaASTPtr altura;
+};
+
+class NoDoComandoPLOT : public NoDeComando {
+public:
+    // Os atributos exceto o "preencher" podem ser variáveis ou números
+    NoDaASTPtr posicaoX;
+    NoDaASTPtr posicaoY;
+    NoDaASTPtr espessura;
+    std::string cor;
+    bool preencher;
+};
+
+class NoDoComandoLINE : public NoDeComando {
+public:
+    // Os atributos podem ser variáveis ou números
+    NoDaASTPtr xInicial;
+    NoDaASTPtr yInicial;
+    NoDaASTPtr xFinal;
+    NoDaASTPtr yFinal;
+    std::string cor;
+};
+
+class NoDoComandoRECTANGLE : public NoDeComando {
+public:
+    // Os atributos exceto o "preencher" podem ser variáveis ou números
+    NoDaASTPtr xCantoSuperiorEsquerdo;
+    NoDaASTPtr yCantoSuperiorEsquerdo;
+    NoDaASTPtr xCantoInferiorDireito;
+    NoDaASTPtr yCantoInferiorDireito;
+    std::string cor;
+    bool preencher;
+};
+
 class NoDeExpressao : public NoDaAST {
 public:
     virtual ~NoDeExpressao() = default;
@@ -133,15 +171,14 @@ private:
 
 class Parser {
 public:
-    explicit Parser(const std::vector<Token>& tokens);
+    explicit Parser(const std::vector<Token>& tokens, bool jaTemDrawStart);
 
     std::shared_ptr<NoDePrograma> parse();
     std::string tokenTypeName(TokenType type);
-
+    bool jaTemDrawStart;
 private:
     std::vector<Token> tokens;
     size_t pos;
-
     std::shared_ptr<NoDeComando> parseComando();
     std::shared_ptr<NoDoComandoLET> parseComandoLET();
     std::shared_ptr<NoDoComandoPRINT> parseComandoPRINT();
@@ -150,6 +187,10 @@ private:
     std::shared_ptr<NoDoComandoEND> parseComandoEND();
     std::shared_ptr<NoDoComandoIF> parseComandoIF();
     std::shared_ptr<NoDoComandoINPUT> parseComandoINPUT();
+    std::shared_ptr<NoDoComandoDRAW> parseComandoDRAW();
+    std::shared_ptr<NoDoComandoPLOT> parseComandoPLOT();
+    std::shared_ptr<NoDoComandoLINE> parseComandoLINE();
+    std::shared_ptr<NoDoComandoRECTANGLE> parseComandoRECTANGLE();
     std::shared_ptr<NoDeExpressao> parseExpressao();
     std::shared_ptr<NoDeExpressao> parseSomaSub();
     std::shared_ptr<NoDeExpressao> parseMultDiv();

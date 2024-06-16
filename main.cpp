@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <filesystem>
 
 /*
 Copyright 2024 Cleuton Sampaio de Melo Junir
@@ -21,9 +22,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-const std::string VERSAO = "0.0.3";
+const std::string VERSAO = "0.0.4";
 
-void executarPrograma(const std::string& input, bool verbose) {
+void executarPrograma(const std::string basicScriptName, const std::string& input, bool verbose) {
     std::istringstream inputStream(input);
     std::string linha;
     auto programa = std::make_shared<NoDePrograma>();
@@ -31,7 +32,7 @@ void executarPrograma(const std::string& input, bool verbose) {
     if (verbose) {
         std::cout << "SiBasic v " << VERSAO << std::endl;
     }
-
+    bool jaTemDrawStart = false;
     while (std::getline(inputStream, linha)) {
         Lexer lexer{};
         try {
@@ -42,7 +43,7 @@ void executarPrograma(const std::string& input, bool verbose) {
             transform(linha.begin(), linha.end(), linha.begin(), ::toupper);
             std::vector<Token> tokens = lexer.tokenize(linha);
 
-            Parser parser(tokens);
+            Parser parser(tokens, jaTemDrawStart);
 
             if (verbose) {
                 std::cout << "Fonte: " << linha << std::endl;
@@ -62,7 +63,7 @@ void executarPrograma(const std::string& input, bool verbose) {
                 std::cout << "AST para a linha line " << tokens[0].value << ":" << std::endl;
                 mostrarAST(lineProgram);
             }
-
+            jaTemDrawStart = parser.jaTemDrawStart;
         } catch (const LexerException& e) {
             std::cerr << "Erro de lexer: " << e.what() << std::endl;
         } catch (const ParserException& e) {
@@ -74,11 +75,17 @@ void executarPrograma(const std::string& input, bool verbose) {
     }
 
     try {
-        Interpreter interpreter;
+        Interpreter interpreter(basicScriptName);
         interpreter.executar(programa);
     } catch (const std::runtime_error& e) {
         std::cerr << "Erro de interpreter: " << e.what() << std::endl;
     }
+}
+
+std::string getScriptName(const std::string filePath) {
+    std::filesystem::path pathObj(filePath);
+    // Obtendo o nome do arquivo
+    return pathObj.filename().string();
 }
 
 int main(int argc, char *argv[]) {
@@ -103,6 +110,7 @@ int main(int argc, char *argv[]) {
         filename = argv[1];
     }
 
+    std::string basicScriptName = getScriptName(filename);
     std::ifstream file(filename);
     if (!file) {
         std::cerr << "Falha ao abrir arquivo: " << filename << std::endl;
@@ -113,7 +121,7 @@ int main(int argc, char *argv[]) {
     buffer << file.rdbuf();
     std::string input = buffer.str();
 
-    executarPrograma(input, verbose);
+    executarPrograma(basicScriptName,input, verbose);
 
     return 0;
 }

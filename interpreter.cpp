@@ -8,6 +8,11 @@
 #include <sstream>
 #include <strings.h>
 #include <random>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <ctime>
+#include <filesystem>
 
 /*
 Copyright 2024 Cleuton Sampaio de Melo Junir
@@ -25,7 +30,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-Interpreter::Interpreter() {
+const std::string defaultViewPortFileName = "_DRAW";
+
+Interpreter::Interpreter(std::string basicScriptName) : basicScriptName(basicScriptName) {
     // Inicialize variáveis com um map vazio
     variables = std::unordered_map<std::string, std::vector<double>>();
 }
@@ -74,6 +81,109 @@ void Interpreter::executar(const std::shared_ptr<NoDePrograma>& programa) {
         }
         ++index; // Incrementa o índice para avançar para o próximo elemento
     }
+}
+
+std::string getViewportFileName(std::string basicScriptName) {
+    // Obter o tempo atual
+    std::time_t now = std::time(nullptr);
+    std::tm* localTime = std::localtime(&now);
+
+    // Usar stringstream para formatar a data e hora
+    std::stringstream ss;
+    ss << std::put_time(localTime, "%Y-%m-%d_%H-%M-%S");
+
+    try {
+        // Obtendo o diretório atual
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        char pathSeparator = std::filesystem::path::preferred_separator;
+        std::string filePath = currentPath.string() + std::string(1,pathSeparator)
+                + basicScriptName + defaultViewPortFileName + "_"
+                + ss.str() + ".svg";
+        return filePath;
+    } catch (const std::filesystem::filesystem_error& e) {
+        throw std::runtime_error("Erro ao obter o diretório atual");
+    }
+
+    return "";
+}
+
+void Interpreter::executarComandoDraw(const std::shared_ptr<NoDaAST>& comando) {
+    auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(comando);
+    if (drawStmt->tipo == "FINISH") {
+        std::string viewPortFileName = getViewportFileName(Interpreter::basicScriptName);
+        // Cria o arquivo SVG
+        std::ofstream viewPortFile(viewPortFileName);
+        if (viewPortFile.is_open()) {
+
+            // Escreve os elementos SVG
+            for (const auto& elemento : Interpreter::elementosSvg) {
+                viewPortFile << elemento << std::endl;
+            }
+
+            // Escreve o rodapé do SVG
+            viewPortFile << "</svg>" << std::endl;
+            viewPortFile.close();
+        } else {
+            throw std::runtime_error("Erro ao abrir o arquivo para escrita.\n");
+        }
+    } else  {
+        // Begin
+        double altura = avaliarExpressao(drawStmt->altura);
+        double largura = avaliarExpressao(drawStmt->largura);
+        std::stringstream sBegin;
+        sBegin << "<svg width=\"" << largura << "\""
+                << " height=\"" << altura
+                << "\" xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
+        Interpreter::elementosSvg.push_back(sBegin.str());
+    }
+}
+
+void Interpreter::executarComandoPlot(const std::shared_ptr<NoDaAST> &comando) {
+    auto plotStmt = std::dynamic_pointer_cast<NoDoComandoPLOT>(comando);
+    double x = avaliarExpressao(plotStmt->posicaoX);
+    double y = avaliarExpressao(plotStmt->posicaoY);
+    double raio = avaliarExpressao(plotStmt->espessura);
+    std::string cor = plotStmt->cor;
+    std::string fill = " fill=\"none\" ";
+    if (plotStmt->preencher) {
+        fill = " fill=\"" + cor + "\"";
+    }
+    std::string circle = "<circle cx=\"" + std::to_string(x) + "\" cy=\"" + std::to_string(y) +
+                         "\" r=\"" + std::to_string(raio) + "\"" +
+                         " stroke=\"" + cor + "\" stroke-width=\"1\"" +
+                         fill +  " />\n";
+    Interpreter::elementosSvg.push_back(circle);
+}
+
+void Interpreter::executarComandoRectangle(const std::shared_ptr<NoDaAST> &comando) {
+    auto rectStmt = std::dynamic_pointer_cast<NoDoComandoRECTANGLE>(comando);
+    double x1 = avaliarExpressao(rectStmt->xCantoSuperiorEsquerdo);
+    double y1 = avaliarExpressao(rectStmt->yCantoSuperiorEsquerdo);
+    double x2 = avaliarExpressao(rectStmt->xCantoInferiorDireito);
+    double y2 = avaliarExpressao(rectStmt->yCantoInferiorDireito);
+    std::string cor =  rectStmt->cor;
+    std::string fill = " fill=\"none\" ";
+    if (rectStmt->preencher) {
+        fill = " fill=\"" + cor + "\"";
+    }
+    std::string rectangle = "<rect x=\"" + std::to_string(x1) + "\" y=\"" + std::to_string(y1) +
+                            "\" width=\"" + std::to_string(x2 - x1) + "\" height=\"" + std::to_string(y2 - y1) +
+                            "\"" + fill +
+                            " stroke=\"" + cor + "\" stroke-width=\"1\" />\n";
+    Interpreter::elementosSvg.push_back(rectangle);
+}
+
+void Interpreter::executarComandoLine(const std::shared_ptr<NoDaAST> &comando) {
+    auto lineStmt = std::dynamic_pointer_cast<NoDoComandoLINE>(comando);
+    double x1 = avaliarExpressao(lineStmt->xInicial);
+    double y1 = avaliarExpressao(lineStmt->yInicial);
+    double x2 = avaliarExpressao(lineStmt->xFinal);
+    double y2 = avaliarExpressao(lineStmt->yFinal);
+    std::string cor = lineStmt->cor;
+    std::string line = "<line x1=\"" + std::to_string(x1) + "\" y1=\"" + std::to_string(y1) +
+                       "\" x2=\"" + std::to_string(x2) + "\" y2=\"" + std::to_string(y2) +
+                       "\" stroke=\"" + cor + "\" stroke-width=\"1\" />\n";
+    Interpreter::elementosSvg.push_back(line);
 }
 
 int Interpreter::executarComando(const std::shared_ptr<NoDaAST>& comando, const std::shared_ptr<NoDePrograma>& programa) {
@@ -160,6 +270,14 @@ int Interpreter::executarComando(const std::shared_ptr<NoDaAST>& comando, const 
         std::cout << "# ";
         std::cin >> valor;
         variables[inputStmt->identificador] = std::vector<double>(1, valor);
+    } else if (auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(comando)) {
+        executarComandoDraw(comando);
+    } else if (auto plotStmt = std::dynamic_pointer_cast<NoDoComandoPLOT>(comando)) {
+        executarComandoPlot(comando);
+    } else if (auto lineStmt = std::dynamic_pointer_cast<NoDoComandoLINE>(comando)) {
+        executarComandoLine(comando);
+    } else if (auto rectStmt = std::dynamic_pointer_cast<NoDoComandoRECTANGLE>(comando)) {
+        executarComandoRectangle(comando);
     } else {
         throw std::runtime_error("Tipo de comando inexperado");
     }

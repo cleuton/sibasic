@@ -24,7 +24,7 @@ const char* ParserException::what() const noexcept {
     return message.c_str();
 }
 
-Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), pos(0) {}
+Parser::Parser(const std::vector<Token>& tokens, bool jaTemDrawStart) : tokens(tokens), pos(0), jaTemDrawStart(jaTemDrawStart) {}
 
 std::shared_ptr<NoDePrograma> Parser::parse() {
     auto program = std::make_shared<NoDePrograma>();
@@ -57,6 +57,14 @@ std::shared_ptr<NoDeComando> Parser::parseComando() {
         return parseComandoIF();
     } else if (encontrar(COMANDO, "INPUT")) {
         return parseComandoINPUT();
+    } else if (encontrar(COMANDO,"DRAW" )) {
+        return parseComandoDRAW();
+    } else if (encontrar(COMANDO, "PLOT")) {
+        return parseComandoPLOT();
+    } else if (encontrar(COMANDO, "LINE")) {
+        return parseComandoLINE();
+    } else if (encontrar(COMANDO, "RECTANGLE")) {
+        return parseComandoRECTANGLE();
     } else {
         throw ParserException("Unexpected command: " + tokens[pos].value);
     }
@@ -147,6 +155,104 @@ std::shared_ptr<NoDoComandoINPUT> Parser::parseComandoINPUT() {
     auto inputStmt = std::make_shared<NoDoComandoINPUT>();
     inputStmt->identificador = consumir(IDENTIFICADOR).value().value;
     return inputStmt;
+}
+
+std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
+    // Há duas formas: DRAW START e DRAW FINISH. Elas tem que fazer par
+    consumir(COMANDO, "DRAW");
+    auto drawStmt = std::make_shared<NoDoComandoDRAW>();
+    if (encontrar(IDENTIFICADOR, "START")) {
+        // É um DRAW START
+        if (jaTemDrawStart) {
+            throw ParserException("Dois DRAW START!");
+        }
+        drawStmt->tipo = consumir(IDENTIFICADOR).value().value;
+        jaTemDrawStart = true;
+
+        drawStmt->altura = parseExpressao();
+        consumir(VIRGULA);
+        drawStmt->largura = parseExpressao();
+    } else {
+        // É um DRAW END
+        if (encontrar(IDENTIFICADOR, "FINISH")) {
+            if (!jaTemDrawStart) {
+                throw ParserException("Draw FINISH sem DRAW START!");
+            }
+            jaTemDrawStart = false;
+            drawStmt->tipo = consumir(IDENTIFICADOR, "FINISH").value().value;
+        }
+    }
+    return drawStmt;
+}
+
+std::shared_ptr<NoDoComandoPLOT> Parser::parseComandoPLOT() {
+    if (!jaTemDrawStart) {
+        throw ParserException("PLOT sem DRAW START!");
+    }
+    consumir(COMANDO, "PLOT");
+    auto plotStmt = std::make_shared<NoDoComandoPLOT>();
+    plotStmt->posicaoX = parseExpressao();
+    consumir(VIRGULA);
+    plotStmt->posicaoY = parseExpressao();
+    consumir(VIRGULA);
+    plotStmt->espessura = parseExpressao();
+    consumir(VIRGULA);
+    plotStmt->cor = consumir(IDENTIFICADOR).value().value;
+    if (encontrar(VIRGULA, ",")) {
+        consumir(VIRGULA);
+        if (encontrar(IDENTIFICADOR, "FILL")) {
+            plotStmt->preencher = true;
+            consumir(IDENTIFICADOR);
+        } else {
+            plotStmt->preencher = false;
+        }
+    }
+    return plotStmt;
+}
+
+std::shared_ptr<NoDoComandoLINE> Parser::parseComandoLINE() {
+    if (!jaTemDrawStart) {
+        throw ParserException("LINE sem DRAW START!");
+    }
+    consumir(COMANDO, "LINE");
+    auto lineStmt = std::make_shared<NoDoComandoLINE>();
+    lineStmt->xInicial = parseExpressao();
+    consumir(VIRGULA);
+    lineStmt->yInicial = parseExpressao();
+    consumir(VIRGULA);
+    lineStmt->xFinal = parseExpressao();
+    consumir(VIRGULA);
+    lineStmt->yFinal = parseExpressao();
+    consumir(VIRGULA);
+    lineStmt->cor = consumir(IDENTIFICADOR).value().value;
+    return lineStmt;
+}
+
+std::shared_ptr<NoDoComandoRECTANGLE> Parser::parseComandoRECTANGLE() {
+    if (!jaTemDrawStart) {
+        throw ParserException("RECTANGLE sem DRAW START!");
+    }
+    consumir(COMANDO, "RECTANGLE");
+    auto rectStmt = std::make_shared<NoDoComandoRECTANGLE>();
+    rectStmt->xCantoSuperiorEsquerdo = parseExpressao();
+    consumir(VIRGULA);
+    rectStmt->yCantoSuperiorEsquerdo = parseExpressao();
+    consumir(VIRGULA);
+    rectStmt->xCantoInferiorDireito = parseExpressao();
+    consumir(VIRGULA);
+    rectStmt->yCantoInferiorDireito = parseExpressao();
+    consumir(VIRGULA);
+    rectStmt->cor = consumir(IDENTIFICADOR).value().value;
+    if (tokens.size() == 14) {
+        consumir(VIRGULA);
+        if (encontrar(IDENTIFICADOR, "FILL")) {
+            rectStmt->preencher = true;
+            consumir(IDENTIFICADOR);
+        } else {
+            rectStmt->preencher = false;
+        }
+    }
+    return rectStmt;
 }
 
 std::shared_ptr<NoDeExpressao> Parser::parseExpressao() {
@@ -331,7 +437,31 @@ void mostrarAST(const std::shared_ptr<NoDaAST>& node, int indent) {
         << " " << ifStmt->operando2 << " >> " << ifStmt->numeroLinha;
     } else if (auto inputStmt = std::dynamic_pointer_cast<NoDoComandoINPUT>(node)) {
         std::cout << indentStr << "NoDoComandoINPUT: "
-        << inputStmt->identificador << std::endl;
+                  << inputStmt->identificador << std::endl;
+    } else if (auto drawStmt = std::dynamic_pointer_cast<NoDoComandoDRAW>(node)) {
+        std::cout << indentStr << "NoDoComandoDRAW: "
+                  << drawStmt->tipo << ", "
+                  << drawStmt->altura << ", " << drawStmt->largura
+                  << std::endl;
+    } else if (auto plotStmt = std::dynamic_pointer_cast<NoDoComandoPLOT>(node)) {
+        std::cout << indentStr << "NoDoComandoPLOT: "
+                  << plotStmt->posicaoX << ", "
+                  << plotStmt->posicaoY << ", " << plotStmt->cor
+                  << ", " << plotStmt->preencher
+                  << std::endl;
+    } else if (auto lineStmt = std::dynamic_pointer_cast<NoDoComandoLINE>(node)) {
+        std::cout << indentStr << "NoDoComandoLINE: "
+                  << lineStmt->xInicial << ", "
+                  << lineStmt->yInicial << ", " << lineStmt->xFinal
+                  << ", " << lineStmt->yFinal << ", " << lineStmt->cor
+                  << std::endl;
+    } else if (auto rectStmt = std::dynamic_pointer_cast<NoDoComandoRECTANGLE>(node)) {
+        std::cout << indentStr << "NoDoComandoRECTANGLE: "
+                  << rectStmt->xCantoSuperiorEsquerdo << ", "
+                  << rectStmt->yCantoSuperiorEsquerdo << ", " << rectStmt->xCantoInferiorDireito
+                  << ", " << rectStmt->yCantoInferiorDireito << ", " << rectStmt->cor
+                  << ", " << rectStmt->preencher
+                  << std::endl;
     } else if (auto binaryExpr = std::dynamic_pointer_cast<NoDeExpressaoBinaria>(node)) {
         std::cout << indentStr << "NoDeExpressaoBinaria: " << binaryExpr->op << std::endl;
         mostrarAST(binaryExpr->left, indent + 2);

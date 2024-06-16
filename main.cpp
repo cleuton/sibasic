@@ -32,7 +32,7 @@ void executarPrograma(const std::string basicScriptName, const std::string& inpu
     if (verbose) {
         std::cout << "SiBasic v " << VERSAO << std::endl;
     }
-
+    bool jaTemDrawStart = false;
     while (std::getline(inputStream, linha)) {
         Lexer lexer{};
         try {
@@ -43,7 +43,7 @@ void executarPrograma(const std::string basicScriptName, const std::string& inpu
             transform(linha.begin(), linha.end(), linha.begin(), ::toupper);
             std::vector<Token> tokens = lexer.tokenize(linha);
 
-            Parser parser(tokens);
+            Parser parser(tokens, jaTemDrawStart);
 
             if (verbose) {
                 std::cout << "Fonte: " << linha << std::endl;
@@ -63,7 +63,7 @@ void executarPrograma(const std::string basicScriptName, const std::string& inpu
                 std::cout << "AST para a linha line " << tokens[0].value << ":" << std::endl;
                 mostrarAST(lineProgram);
             }
-
+            jaTemDrawStart = parser.jaTemDrawStart;
         } catch (const LexerException& e) {
             std::cerr << "Erro de lexer: " << e.what() << std::endl;
         } catch (const ParserException& e) {

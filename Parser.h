@@ -171,15 +171,14 @@ private:
 
 class Parser {
 public:
-    explicit Parser(const std::vector<Token>& tokens);
+    explicit Parser(const std::vector<Token>& tokens, bool jaTemDrawStart);
 
     std::shared_ptr<NoDePrograma> parse();
     std::string tokenTypeName(TokenType type);
-
+    bool jaTemDrawStart;
 private:
     std::vector<Token> tokens;
     size_t pos;
-    bool jaTemDrawBegin;
     std::shared_ptr<NoDeComando> parseComando();
     std::shared_ptr<NoDoComandoLET> parseComandoLET();
     std::shared_ptr<NoDoComandoPRINT> parseComandoPRINT();
@@ -197,7 +196,6 @@ private:
     std::shared_ptr<NoDeExpressao> parseMultDiv();
     std::shared_ptr<NoDeExpressao> parseExponenciacao();
     std::shared_ptr<NoDeExpressao> parsePrimaria();
-    std::string encontrarNumeroOuIdentificador();
 
     bool encontrar(TokenType type, const std::string& value = "");
     std::optional<Token> consumir(TokenType type, const std::string& value = "", bool deveExistir = true);

@@ -306,6 +306,50 @@ RECTANGLE <topleft x>, <topleft y>, <bottomright x>, <bottomright y>, <cor>, [FI
 
 As coordenadas X e Y são o ponto inicial e X2 e Y2 são o ponto final. O atributo **cor** é o mesmo do comando **PLOT**.
 
+## Exemplos dos comandos de desenho
+
+Aqui está um exemplo básico de desenho: 
+```basic
+10 LET X = 10
+20 LET Y = 10
+30 DRAW START 500, 500
+* PLOT <x>,<y>,<raio>,<cor>,[FILL]
+40 PLOT X, Y, 1, BLUE
+* LINE <x>,<y>,<x2>,<y2>,<cor>
+50 LINE X, Y, 100, 100, RED
+* RECTANGLE <topleft x>, <topleft y>, <bottomright x>, <bottomright y>, <cor>,[FILL]
+60 RECTANGLE X, Y, 100, 100, GREEN
+70 DRAW FINISH
+```
+
+Eis o arquivo resultante "desenhos.bas_DRAW_2024-06-16_10-07-21.svg":
+
+![](desenhos.png)
+
+E outro exemplo que desenha círculos aleatórios:
+```basic
+* Desenha bolinhas aleatórias
+10 DIM X 20
+20 DIM Y 20
+30 DIM RAIO 20
+40 LET I = 1
+50 LET X[I] = RND() * 1000
+60 LET Y[I] = RND() * 1000
+70 LET RAIO[I] = RND() * 100
+80 LET I = I + 1
+90 IF I < 20 THEN 50
+100 DRAW START 10000, 10000
+110 LET I = 1
+120 PLOT X[I], Y[I], RAIO[I], BLUE, FILL
+130 LET I = I + 1
+140 IF I < 20 THEN 120
+150 DRAW FINISH
+```
+
+Eis o arquivo resultante  "randomplot.bas_DRAW_2024-06-16_10-08-54.svg":
+
+![](randomplot.png)
+
 ## Expressões
 
 Os comandos **LET** e **PRINT** admitem expressões, que podem conter: **variáveis**, **operadores aritméticos**, **funções** e **negativo unário**.

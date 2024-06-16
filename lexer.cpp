@@ -184,45 +184,16 @@ void Lexer::validarComando(const std::vector<Token>& tokens) {
         }
 
     } else if (command == "PLOT" ) {
-/*
-        if (tokens.size() != 10 && tokens.size() != 12) {
+        if (tokens.size() < 10) {
             throw LexerException("Comando PLOT inválido 1", numeroDeLinhaBasic, input);
         }
-        if ((tokens[2].type != NUMERO && tokens[2].type != IDENTIFICADOR)
-            || (tokens[4].type != NUMERO && tokens[4].type != IDENTIFICADOR)
-            || (tokens[6].type != NUMERO && tokens[6].type != IDENTIFICADOR)
-            || (tokens[8].type != IDENTIFICADOR)
-            ) {
-            throw LexerException("Comando PLOT inválido 2", numeroDeLinhaBasic, input);
-        }
-        if ((tokens.size() == 12 && tokens[10].value != "FILL")) {
-            throw LexerException("Comando PLOT inválido 3", numeroDeLinhaBasic, input);
-        }
-*/
     } else if (command == "LINE") {
-        if (tokens.size() != 12) {
+        if (tokens.size() < 12) {
             throw LexerException("Comando LINE inválido 1", numeroDeLinhaBasic, input);
         }
-        if ((tokens[2].type != NUMERO && tokens[2].type != IDENTIFICADOR)
-            || (tokens[4].type != NUMERO && tokens[4].type != IDENTIFICADOR)
-            || (tokens[6].type != NUMERO && tokens[6].type != IDENTIFICADOR)
-            || (tokens[8].type != NUMERO && tokens[8].type != IDENTIFICADOR)
-            || (tokens[10].type != IDENTIFICADOR)) {
-            throw LexerException("Comando LINE inválido 2", numeroDeLinhaBasic, input);
-        }
     } else if (command == "RECTANGLE") {
-        if (tokens.size() != 12 && tokens.size() != 14) {
+        if (tokens.size() < 12) {
             throw LexerException("Comando RECTANGLE inválido 1", numeroDeLinhaBasic, input);
-        }
-        if ((tokens[2].type != NUMERO && tokens[2].type != IDENTIFICADOR)
-            || (tokens[4].type != NUMERO && tokens[4].type != IDENTIFICADOR)
-            || (tokens[6].type != NUMERO && tokens[6].type != IDENTIFICADOR)
-            || (tokens[8].type != NUMERO && tokens[8].type != IDENTIFICADOR)
-            || (tokens[10].type != IDENTIFICADOR)) {
-            throw LexerException("Comando RECTANGLE inválido 2", numeroDeLinhaBasic, input);
-        }
-        if (tokens.size() == 14 && tokens[12].value != "FILL") {
-            throw LexerException("Comando RECTANGLE inválido 3", numeroDeLinhaBasic, input);
         }
     }
 

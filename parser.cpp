@@ -24,7 +24,7 @@ const char* ParserException::what() const noexcept {
     return message.c_str();
 }
 
-Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), pos(0) {}
+Parser::Parser(const std::vector<Token>& tokens, bool jaTemDrawStart) : tokens(tokens), pos(0), jaTemDrawStart(jaTemDrawStart) {}
 
 std::shared_ptr<NoDePrograma> Parser::parse() {
     auto program = std::make_shared<NoDePrograma>();
@@ -157,27 +157,17 @@ std::shared_ptr<NoDoComandoINPUT> Parser::parseComandoINPUT() {
     return inputStmt;
 }
 
-std::string Parser::encontrarNumeroOuIdentificador() {
-    std::string retorno;
-    if (encontrar(IDENTIFICADOR)) {
-        retorno = consumir(IDENTIFICADOR).value().value;
-    } else {
-        retorno = consumir(NUMERO).value().value;
-    }
-    return retorno;
-}
-
 std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
     // Há duas formas: DRAW START e DRAW FINISH. Elas tem que fazer par
     consumir(COMANDO, "DRAW");
     auto drawStmt = std::make_shared<NoDoComandoDRAW>();
     if (encontrar(IDENTIFICADOR, "START")) {
         // É um DRAW START
-        if (jaTemDrawBegin) {
+        if (jaTemDrawStart) {
             throw ParserException("Dois DRAW START!");
         }
         drawStmt->tipo = consumir(IDENTIFICADOR).value().value;
-        jaTemDrawBegin = true;
+        jaTemDrawStart = true;
 
         drawStmt->altura = parseExpressao();
         consumir(VIRGULA);
@@ -185,10 +175,10 @@ std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
     } else {
         // É um DRAW END
         if (encontrar(IDENTIFICADOR, "FINISH")) {
-            if (!jaTemDrawBegin) {
+            if (!jaTemDrawStart) {
                 throw ParserException("Draw FINISH sem DRAW START!");
             }
-            jaTemDrawBegin = false;
+            jaTemDrawStart = false;
             drawStmt->tipo = consumir(IDENTIFICADOR, "FINISH").value().value;
         }
     }
@@ -196,7 +186,7 @@ std::shared_ptr<NoDoComandoDRAW> Parser::parseComandoDRAW() {
 }
 
 std::shared_ptr<NoDoComandoPLOT> Parser::parseComandoPLOT() {
-    if (!jaTemDrawBegin) {
+    if (!jaTemDrawStart) {
         throw ParserException("PLOT sem DRAW START!");
     }
     consumir(COMANDO, "PLOT");
@@ -221,7 +211,7 @@ std::shared_ptr<NoDoComandoPLOT> Parser::parseComandoPLOT() {
 }
 
 std::shared_ptr<NoDoComandoLINE> Parser::parseComandoLINE() {
-    if (!jaTemDrawBegin) {
+    if (!jaTemDrawStart) {
         throw ParserException("LINE sem DRAW START!");
     }
     consumir(COMANDO, "LINE");
@@ -239,7 +229,7 @@ std::shared_ptr<NoDoComandoLINE> Parser::parseComandoLINE() {
 }
 
 std::shared_ptr<NoDoComandoRECTANGLE> Parser::parseComandoRECTANGLE() {
-    if (!jaTemDrawBegin) {
+    if (!jaTemDrawStart) {
         throw ParserException("RECTANGLE sem DRAW START!");
     }
     consumir(COMANDO, "RECTANGLE");
